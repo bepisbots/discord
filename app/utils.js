@@ -29,5 +29,11 @@ module.exports = {
     let perms = message.member.permissions;
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;
+  },
+  replaceTemplates: function (text, message, item) {
+    if (!text) return;
+    return text
+      .replace("{itemName}", (item ? this.removeUrls(item.content): ""))
+      .replace("{userTag}", (message ? "<@" + message.author.id + ">": ""));
   }
 };

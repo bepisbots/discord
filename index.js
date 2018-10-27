@@ -85,7 +85,7 @@ const main = function () {
                 var hours = (Date.now() - lastTimeChannelsScanned) / 36e5;
                 if (hours > 1) {
                     lastTimeChannelsScanned = Date.now();
-                    Admin.scanChannels(message, db, bot, configs);
+                    Admin.scanChannels(null, db, bot, configs);
                 }
                 // find key, in case is one of the recorded ones                
                 trick(cmd, message, db, bot, configs, args);

@@ -13,7 +13,7 @@ module.exports = {
         shopMessage += configs.strings.shopListing
           .replace("{id}", id)
           .replace("{itemName}", Utils.removeUrls(i.item))
-          .replace("{username}", i.username)
+          .replace("{userName}", i.username)
           .replace("{coins}", i.coins) + "\n";
         id++;
       });
@@ -24,7 +24,7 @@ module.exports = {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 2) {
       message.channel.send(configs.strings.unSellError
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
@@ -43,21 +43,21 @@ module.exports = {
       await shopCol.deleteOne({ userId: message.author.id, itemId: key });
       return configs.strings.unSellSuccess
         .replace("{itemName}", Utils.removeUrls(item.content))
-        .replace("{username}", message.author.username);
+        .replace("{userTag}", "<@" + message.author.id + ">");
     });
   },
   invSell: async function (message, db, bot, configs, trickArgs, userArgs) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 3) {
       message.channel.send(configs.strings.sellError
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
-    const coins = cmdArgs[2];
+    const coins = parseInt(cmdArgs[2]);
     if (!coins || coins <= 0 || coins > 100) {
       message.channel.send(configs.strings.sellErrorCoins
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     changeUser(message, db, async (usrDoc) => {
@@ -81,11 +81,11 @@ module.exports = {
         userId: message.author.id,
         username: message.author.username,
         item: item.content,
-        coins: coins
+        coins: parseInt(coins)
       });
       return configs.strings.sellSuccess
         .replace("{itemName}", Utils.removeUrls(item.content))
-        .replace("{username}", message.author.username);
+        .replace("{userTag}", "<@" + message.author.id + ">");
     });
   },
   invTrash: async function (message, db, bot, configs, trickArgs, userArgs) {
@@ -132,11 +132,11 @@ module.exports = {
             .replace("{itemName}", Utils.removeUrls(i.content))
             .replace("{quantityOwned}", i.quantity)
             .replace("{quantityForSale}", i.selling)
-            .replace("{username}", message.author.username))
+            .replace("{userTag}", "<@" + message.author.id + ">"))
           .reduce((i1, i2) => i1 + "\n" + i2);
       inv += "\n\n" + configs.strings.invShowTotalCoins
         .replace("{coins}", usrDoc.coins || 0)
-        .replace("{username}", message.author.username);
+        .replace("{userTag}", "<@" + message.author.id + ">");
       message.channel.send(inv);
     });
   },
@@ -172,7 +172,7 @@ module.exports = {
             const minutes = parseInt((difference / (1000 * 60)) % 60);
             const hours = parseInt((difference / (1000 * 60 * 60)) % 24);
             message.channel.send(configs.strings.catchWaitMessage
-              .replace("{username}", user)
+              .replace("@{userTag}", user)
               .replace("{hours}", hours)
               .replace("{minutes}", minutes)
               .replace("{seconds}", seconds));
@@ -193,7 +193,7 @@ module.exports = {
         col.save(usrDoc);
 
         message.channel.send(configs.strings.catchSuccessMessage
-          .replace("{username}", message.author.username)
+          .replace("{userTag}", "<@" + message.author.id + ">")
           .replace("{itemName}", Utils.removeUrls(catched.content)) + "\n" +
           catched.content);
       });
@@ -202,7 +202,7 @@ module.exports = {
   invBuy: async function (message, db, bot, configs, trickArgs, userArgs) {
     if (!userArgs || userArgs.length < 1) {
       message.channel.send(configs.strings.buyErro
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = userArgs[0] - 1;
@@ -212,53 +212,58 @@ module.exports = {
     if (!shop) return;
     if (!shop[itemNumber]) {
       message.channel.send(configs.strings.buyError
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const user = message.author.username;
     if (!user) return;
     const usrCol = db.collection("users");
     let buyer = await usrCol.findOne({ userId: message.author.id });
-    if (!buyer.coins || shop[itemNumber].coins > buyer.coins) {
+    if (!parseInt(buyer.coins) || parseInt(shop[itemNumber].coins) > parseInt(buyer.coins)) {
       message.channel.send(configs.strings.buyNotEnoughCoins
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
+    const itemId = shop[itemNumber].itemId;
+    // Update seller
     let seller = await usrCol.findOne({ userId: shop[itemNumber].userId });
     if (seller) {
-      seller.coins += shop[itemNumber].coins;
+      if (!parseInt(seller.coins)) seller.coins = 0;
+      seller.coins += parseInt(shop[itemNumber].coins);
+      if (seller.inventory[itemId]) {
+        seller.inventory[itemId].selling--;
+        seller.inventory[itemId].quantity--;
+        if (seller.inventory[itemId].quantity <= 0) {
+          delete seller.inventory[itemId];
+        }
+      }
       await usrCol.save(seller);
     }
-    buyer.coins = buyer.coins - shop[itemNumber].coins;
+    // Update buyer
+    buyer.coins = parseInt(buyer.coins) - parseInt(shop[itemNumber].coins);
+    if (buyer.inventory[itemId]) {
+      buyer.inventory[itemId].quantity++;
+    } else {
+      buyer.inventory[itemId] = {
+        content: shop[itemNumber].item,
+        quantity: 1
+      };
+    }
     await usrCol.save(buyer);
-    await shopCol.deleteOne({ _id: !shop[itemNumber]._id });
 
-    const sellerUser =  bot.users.get(seller.userId);
+    // Update shop
+    await shopCol.deleteOne(shop[itemNumber]);
 
-    let buyMessage = "**{username}**, you have bought {itemName} from **@{sellerTag}** for {paidCoins} bepis"
-      .replace("{itemName}", Utils.removeUrls(shop[itemNumber].item.content))
-      .replace("{username}", message.author.username)
-      .replace("{sellerTag}", (sellerUser ? sellerUser.tag: "Unknown"))
+    let buyMessage = configs.strings.buySuccess
+      .replace("{sellerTag}", "<@" + seller.userId + ">")
       .replace("{paidCoins}", shop[itemNumber].coins);
-
+    buyMessage = Utils.replaceTemplates(buyMessage, message, shop[itemNumber].item);
     message.channel.send(buyMessage);
-
-
-    //   const shopCol = db.collection("shop");
-    //   await shopCol.insertOne({
-    //     itemId: key,
-    //     username: message.author.username,
-    //     item: item.content,
-    //     coins: coins
-    //   });
-    //   return configs.strings.sellSuccess.replace("{itemName}", Utils.removeUrls(item.content));
-    // });
-
   },
   invGive: async function (message, db, bot, configs, trickArgs, userArgs) {
     if (!userArgs || userArgs.length < 1) {
       message.channel.send(configs.strings.giveAwayError
-        .replace("{username}", message.author.username));
+        .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = userArgs[0] - 1;
@@ -271,11 +276,17 @@ module.exports = {
     if (!key) return;
     const item = user.inventory[key];
     if (!item) return;
+    // Make sure the item is not in the shop
+    if (item.selling > 0) {
+      message.channel.send(configs.strings.giveAwayErrorShop
+        .replace("{userTag}", "<@" + message.author.id + ">"));
+      return;
+    }
 
     let greatestCoinsValue = 10; // Default value
     configs.symbols.forEach(entry => {
       if (item.content.indexOf(entry.symbol) >= 0 && greatestCoinsValue < entry.giveAwayValue) {
-        greatestCoinsValue = entry.giveAwayValue;
+        greatestCoinsValue = parseInt(entry.giveAwayValue);
       }
     });
 
@@ -294,7 +305,7 @@ module.exports = {
       .replace("{receivedCoins}", greatestCoinsValue)
       .replace("{totalCoins}", user.coins)
       .replace("{itemName}", Utils.removeUrls(item.content))
-      .replace("{username}", message.author.username);
+      .replace("{userTag}", "<@" + message.author.id + ">");
     message.channel.send(textMessage);
   }
 };
