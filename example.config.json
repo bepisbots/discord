@@ -1,0 +1,7 @@
+{
+    "token": "[YOUR_BOT_TOKEN]",
+    "prefix": "!",
+    "database": {
+        "connectionString": "[YOUR_MONGO_DB_CONNECTION_STRING]"
+    }
+}
