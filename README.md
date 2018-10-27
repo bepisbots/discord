@@ -1,4 +1,4 @@
-# Welcome to Configurabel Discord Bot
+# Welcome to Bepis Bot
 
 ## Features
 Bepisbot allows to setup new kewords based on predefined functions. By default, the bot only allows the Server admin to create new kewords. For instance, to create a command for help, the Admin would type the following:
