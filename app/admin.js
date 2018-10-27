@@ -49,7 +49,7 @@ module.exports = {
       return;
     }
     const col = db.collection("tricks");
-    await col.find().toArray(function (err, allTricks) {
+    col.find().toArray(function (err, allTricks) {
       if (err) return;
       if (!allTricks) return;
 

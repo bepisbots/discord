@@ -83,11 +83,13 @@ async function listTricks(message, db, bot, configs, trickArgs, userArgs) {
 
     let regularTricks = allTricks
       .filter(t => !FUNCTIONS[t.say.split(" ")[0]] || !FUNCTIONS[t.say.split(" ")[0]].onlyAdmin)
-      .map(v => v.name);
+      .map(v => v.name)
+      .sort();
 
     let adminTricks = allTricks
       .filter(t => FUNCTIONS[t.say.split(" ")[0]] && FUNCTIONS[t.say.split(" ")[0]].onlyAdmin)
-      .map(v => v.name + " " + v.say);
+      .map(v => v.name + " " + v.say)
+      .sort();
 
     const isAdmin = Utils.isAdmin(message);
 
@@ -95,11 +97,31 @@ async function listTricks(message, db, bot, configs, trickArgs, userArgs) {
       .filter(fn => fn.help)
       .map(fn => fn.help);
 
-    let textMsg = "";
+    let textMsg = "```md";
     if (isAdmin) {
       textMsg += "\n\nNon-Admin Commands\n==================\n"
+    } else {
+      textMsg += "\n\nHelp\n==================\n"
     }
-    textMsg += regularTricks.reduce((n1, n2) => n1 + "\n" + n2);;
+    const COLS = 3;
+    const COL_LEN = 20;
+    let colNum = 1;
+    
+    for (command in regularTricks){
+      const msg = "[" + regularTricks[command] + "]"; 
+      if (colNum++ <  COLS){
+        let spaces = COL_LEN - msg.length;
+        while (spaces <= 0) {
+          spaces += COL_LEN
+          colNum++;
+        }
+        textMsg += msg + " ".repeat(spaces);  
+      } else {
+        colNum = 1;
+        textMsg += msg + "\n";
+      }
+    }
+    //textMsg += regularTricks.reduce((n1, n2) => n1 + "\n" + n2);;
     if (isAdmin) {
       if (functionsHelp)
         textMsg += "\n\nAdmin Functions:\n==================\n" +
@@ -108,6 +130,7 @@ async function listTricks(message, db, bot, configs, trickArgs, userArgs) {
         textMsg += "\n\nAdmin Commands:\n==================\n" +
           adminTricks.reduce((n1, n2) => n1 + "\n" + n2);
     }
+    textMsg += "```";
 
     message.channel.send(textMsg);
   });
