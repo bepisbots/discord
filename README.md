@@ -40,13 +40,13 @@ WIP
 
 ## Running Unit Tests
 
-1. Install Jasmine-Node
+- Install Jasmine-Node
 ```
 npm install jasmine-node -g
 ```
-1. Running unit tests
+- Running unit tests
 ```
 jasmine-node spec/ --autotest
 ```
-1. Writing unit tests
-   - https://jasmine.github.io/tutorials/your_first_suite
+- Writing unit tests
+https://jasmine.github.io/tutorials/your_first_suite
