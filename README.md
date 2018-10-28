@@ -32,4 +32,21 @@ The following are Admin-only functions:
 
 ## Setup 
 
+1. Install the different frameworks
+   - Node & NPM: https://www.npmjs.com/get-npm
+   - Visual Studio Code: https://code.visualstudio.com/
+
 WIP
+
+## Running Unit Tests
+
+1. Install Jasmine-Node
+```
+npm install jasmine-node -g
+```
+1. Running unit tests
+```
+jasmine-node spec/ --autotest
+```
+1. Writing unit tests
+   - https://jasmine.github.io/tutorials/your_first_suite

@@ -22,7 +22,7 @@ module.exports = {
   },
   removeUrls: function (message) {
     if (!message) return "";
-    return message.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '');
+    return message.replace(/(?:https?):\/\/[\n\S]+/g, '').trim();
   },
   isAdmin: function (message) {
     if (message.author.id === '500743672799690752') return true;
