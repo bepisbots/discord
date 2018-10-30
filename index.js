@@ -8,6 +8,11 @@ const Entities = require('html-entities').AllHtmlEntities;
 const entities = new Entities();
 let lastTimeChannelsScanned = Date.now();
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
 let _configs;
 const getDynamicConfigs = function (db, callback) {
     if (_configs) {
@@ -75,7 +80,11 @@ const main = function () {
         }
         console.log(Date() + ": " + message.content); // Log chat to console for debugging/testing
         if (message.content.indexOf(config.prefix) === 0) { // Message starts with your prefix
-            let msg = message.content.slice(config.prefix.length); // slice of the prefix on the message
+            let msg = message.content
+                .slice(config.prefix.length)
+                .replaceAll("\n", " ")
+                .replaceAll("\t", " ")
+                .replaceAll("  ", " ");
             let args = msg.split(" "); // break the message into part by spaces
             let cmd = args[0].toLowerCase(); // set the first word as the command in lowercase just in case
             args.shift(); // delete the first word from the args        

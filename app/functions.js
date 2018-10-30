@@ -73,6 +73,11 @@ const FUNCTIONS = {
     fn: Inventory.invGive,
     help: "!trick [name] GIVE_AWAY_INVENTORY"
   },
+  "CHANGE_COLOR_INVENTORY": {
+    onlyAdmin: true,
+    fn: Inventory.invColor,
+    help: "!trick [name] CHANGE_COLOR_INVENTORY"
+  },
 };
 
 async function listTricks(message, db, bot, configs, trickArgs, userArgs) {

@@ -124,21 +124,74 @@ module.exports = {
       if (!usrDoc) return;
       if (!usrDoc.inventory) return;
       let count = 1;
-      let inv = "**Inventory**\n" +
-        Object.values(usrDoc.inventory)
-          .filter(i => i.content)
-          .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
-            .replace("{id}", count++)
-            .replace("{itemName}", Utils.removeUrls(i.content))
-            .replace("{quantityOwned}", i.quantity)
-            .replace("{quantityForSale}", i.selling)
-            .replace("{userTag}", "<@" + message.author.id + ">"))
-          .reduce((i1, i2) => i1 + "\n" + i2);
-      inv += "\n\n" + configs.strings.invShowTotalCoins
+      let inventory = Object.values(usrDoc.inventory)
+        .filter(i => i.content)
+        .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
+          .replace("{id}", count++)
+          .replace("{itemName}", Utils.removeUrls(i.content))
+          .replace("{quantityOwned}", i.quantity)
+          .replace("{quantityForSale}", i.selling)
+          .replace("{userTag}", "<@" + message.author.id + ">"))
+        .reduce((i1, i2) => i1 + "\n" + i2);
+
+      const footer = configs.strings.invShowTotalCoins
         .replace("{coins}", usrDoc.coins || 0)
         .replace("{userTag}", "<@" + message.author.id + ">");
-      message.channel.send(inv);
+      let sideBarColor = 0xff8040;
+      if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
+        sideBarColor = usrDoc.preferences.sideBarColor;
+      }
+      message.channel.send({
+        embed: {
+          color: sideBarColor,
+          title: "**Inventory**",
+          description: inventory + "\n\n" + footer
+        }
+      });
     });
+  },
+  invColor: async function (message, db, bot, configs, trickArgs, userArgs) {
+    // Get user entry
+    const userTag = userArgs[0];
+    if (!userTag) {
+      message.channel.send(configs.strings.invColorError);
+      return;
+    }
+    var numberPattern = /\d+/g;
+    const userNumber = userTag.match(numberPattern);
+    const targetUser = bot.users.find("id", userNumber[0]);
+    if (!targetUser) {
+      message.channel.send(configs.strings.invColorError);
+      return;
+    }
+    const colorHex = userArgs[1];
+    if (!colorHex) {
+      message.channel.send(configs.strings.invColorError);
+      return;
+    }
+    var isOk = /^#[0-9A-F]{6}$/i.test(colorHex);
+    if (!isOk) {
+      message.channel.send(configs.strings.invColorHexError);
+      return;
+    }
+    const colorNumber = parseInt(colorHex.substr(1), 16);
+
+    const col = db.collection("users");
+    const userRecord = await col.findOne({ userId: message.author.id });
+    if (!userRecord.preferences) {
+      userRecord.preferences = {};
+    }
+    userRecord.preferences.sideBarColor = colorNumber;
+    await col.save(userRecord);
+
+    message.channel.send({
+      embed: {
+        color: colorNumber,
+        title: "Successfully changed color for @" + targetUser.tag,
+        description: "Color: " + colorHex + " (" + colorNumber + ")"
+      }
+    });
+
   },
   invCatch: async function (message, db, bot, configs, trickArgs, userArgs) {
     // Get user entry
@@ -201,7 +254,7 @@ module.exports = {
   },
   invBuy: async function (message, db, bot, configs, trickArgs, userArgs) {
     if (!userArgs || userArgs.length < 1) {
-      message.channel.send(configs.strings.buyErro
+      message.channel.send(configs.strings.buyError
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
