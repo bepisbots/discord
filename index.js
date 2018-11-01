@@ -8,7 +8,7 @@ const Entities = require('html-entities').AllHtmlEntities;
 const entities = new Entities();
 let lastTimeChannelsScanned = Date.now();
 
-String.prototype.replaceAll = function(search, replacement) {
+String.prototype.replaceAll = function (search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
 };
@@ -70,7 +70,11 @@ const main = function () {
     });
 
     bot.on("guildCreate", guild => {
-        console.log(Date() + ": " + `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
+        try {
+            console.log(Date() + ": " + `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
+        } catch (e) {
+            console.warn(e);
+        }
     });
 
     bot.on("message", async message => {
@@ -78,8 +82,8 @@ const main = function () {
         if (message.channel.type === 'dm') { // Direct Message
             return; //Optionally handle direct messages
         }
-        console.log(Date() + ": " + message.content); // Log chat to console for debugging/testing
         if (message.content.indexOf(config.prefix) === 0) { // Message starts with your prefix
+            console.log(Date() + ": " + message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
                 .slice(config.prefix.length)
                 .replaceAll("\n", " ")
@@ -90,14 +94,14 @@ const main = function () {
             args.shift(); // delete the first word from the args        
 
             getDb((db) => getDynamicConfigs(db, (configs) => {
+                // find key, in case is one of the recorded ones                
+                trick(cmd, message, db, bot, configs, args);
                 // Run scan channels automatically every hour
                 var hours = (Date.now() - lastTimeChannelsScanned) / 36e5;
                 if (hours > 1) {
                     lastTimeChannelsScanned = Date.now();
                     Admin.scanChannels(null, db, bot, configs);
                 }
-                // find key, in case is one of the recorded ones                
-                trick(cmd, message, db, bot, configs, args);
             }));
         }
     });
@@ -106,18 +110,22 @@ setInterval(main, 1000 * 60 * 60);
 main();
 
 const trick = async function (cmd, message, db, bot, configs, userArgs) {
-    const col = db.collection("tricks");
-    let trick;
-    if (cmd === 'teach') {
-        trick = { say: "NEW_TRICK" }
-    } else {
-        trick = await col.findOne({ name: cmd }, { limit: 1 });
+    try {
+        const col = db.collection("tricks");
+        let trick;
+        if (cmd === 'teach') {
+            trick = { say: "NEW_TRICK" }
+        } else {
+            trick = await col.findOne({ name: cmd }, { limit: 1 });
+        }
+        if (!trick || !trick.say) return;
+        let trickArgs = trick.say.trim().split(" "); // break the message into part by spaces
+        if (!trickArgs) return false;
+        if (Functions.exists(trickArgs[0])) {
+            Functions.run(trickArgs[0], message, db, bot, configs, trickArgs, userArgs)
+        } else
+            message.channel.send(entities.decode(trick.say));
+    } catch (e) {
+        console.warn(e);
     }
-    if (!trick || !trick.say) return;
-    let trickArgs = trick.say.trim().split(" "); // break the message into part by spaces
-    if (!trickArgs) return false;
-    if (Functions.exists(trickArgs[0])) {
-        Functions.run(trickArgs[0], message, db, bot, configs, trickArgs, userArgs)
-    } else
-        message.channel.send(entities.decode(trick.say));
 }

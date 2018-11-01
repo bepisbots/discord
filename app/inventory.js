@@ -118,36 +118,46 @@ module.exports = {
     // Get user entry
     const user = message.author.username;
     if (!user) return;
+    const itemNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
+    // Show all inventory
     const col = db.collection("users");
     await col.findOne({ userId: message.author.id }, function (err, usrDoc) {
       if (err) return;
       if (!usrDoc) return;
       if (!usrDoc.inventory) return;
       let count = 1;
-      let inventory = Object.values(usrDoc.inventory)
-        .filter(i => i.content)
-        .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
-          .replace("{id}", count++)
-          .replace("{itemName}", Utils.removeUrls(i.content))
-          .replace("{quantityOwned}", i.quantity)
-          .replace("{quantityForSale}", i.selling)
-          .replace("{userTag}", "<@" + message.author.id + ">"))
-        .reduce((i1, i2) => i1 + "\n" + i2);
-
-      const footer = configs.strings.invShowTotalCoins
-        .replace("{coins}", usrDoc.coins || 0)
-        .replace("{userTag}", "<@" + message.author.id + ">");
-      let sideBarColor = 0xff8040;
-      if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
-        sideBarColor = usrDoc.preferences.sideBarColor;
-      }
-      message.channel.send({
-        embed: {
-          color: sideBarColor,
-          title: "**Inventory**",
-          description: inventory + "\n\n" + footer
+      if (itemNumber > 0) {
+        // Show single item in inventory
+        const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
+        if (invEntry){
+          message.channel.send(invEntry.content);
         }
-      });
+      } else {
+        let inventory = Object.values(usrDoc.inventory)
+          .filter(i => i.content)
+          .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
+            .replace("{id}", count++)
+            .replace("{itemName}", Utils.removeUrls(i.content))
+            .replace("{quantityOwned}", i.quantity)
+            .replace("{quantityForSale}", i.selling)
+            .replace("{userTag}", "<@" + message.author.id + ">"))
+          .reduce((i1, i2) => i1 + "\n" + i2);
+
+        const footer = configs.strings.invShowTotalCoins
+          .replace("{coins}", usrDoc.coins || 0)
+          .replace("{userTag}", "<@" + message.author.id + ">");
+        let sideBarColor = 0xff8040;
+        if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
+          sideBarColor = usrDoc.preferences.sideBarColor;
+        }
+        message.channel.send({
+          embed: {
+            color: sideBarColor,
+            title: "**Inventory**",
+            description: inventory + "\n\n" + footer
+          }
+        });
+      }
     });
   },
   invColor: async function (message, db, bot, configs, trickArgs, userArgs) {
@@ -225,7 +235,7 @@ module.exports = {
             const minutes = parseInt((difference / (1000 * 60)) % 60);
             const hours = parseInt((difference / (1000 * 60 * 60)) % 24);
             message.channel.send(configs.strings.catchWaitMessage
-              .replace("@{userTag}", user)
+              .replace("{userTag}", user)
               .replace("{hours}", hours)
               .replace("{minutes}", minutes)
               .replace("{seconds}", seconds));
