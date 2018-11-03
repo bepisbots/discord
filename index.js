@@ -52,9 +52,11 @@ const getDb = function (callback) {
     }
 }
 
+let firstTime = true;
 let bot;
 const main = function () {
-    console.log(Date() + ": Bot Re-Initiated");
+    if (firstTime) 
+        console.log(Date() + ": Bot Initiated");
     if (bot) {
         bot.destroy();
     }
@@ -66,7 +68,10 @@ const main = function () {
 
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
-        console.log(Date() + ": " + `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
+        if (firstTime) {
+            console.log(Date() + ": " + `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
+            firstTime = false;
+        }
     });
 
     bot.on("guildCreate", guild => {

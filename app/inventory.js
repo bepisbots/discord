@@ -7,8 +7,8 @@ module.exports = {
       if (err) return;
       if (!shop) return;
 
-      let shopMessage = configs.strings.shopTitle + "\n";
       let id = 1;
+      let shopMessage = "";
       shop.forEach(i => {
         shopMessage += configs.strings.shopListing
           .replace("{id}", id)
@@ -17,7 +17,13 @@ module.exports = {
           .replace("{coins}", i.coins) + "\n";
         id++;
       });
-      message.channel.send(shopMessage);
+      message.channel.send({
+        embed: {
+          color: 16765235,
+          title: configs.strings.shopTitle,
+          description: shopMessage
+        }
+      });
     });
   },
   invUnSell: async function (message, db, bot, configs, trickArgs, userArgs) {
@@ -129,7 +135,7 @@ module.exports = {
       if (itemNumber > 0) {
         // Show single item in inventory
         const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
-        if (invEntry){
+        if (invEntry) {
           message.channel.send(invEntry.content);
         }
       } else {
@@ -239,9 +245,9 @@ module.exports = {
               .replace("{hours}", hours)
               .replace("{minutes}", minutes)
               .replace("{seconds}", seconds));
-          }
-          if (!Utils.isAdmin(message)) {
-            return;
+            if (!Utils.isAdmin(message)) {
+              //return;
+            }
           }
         }
         if (usrDoc.inventory[igmId]) {
@@ -319,8 +325,9 @@ module.exports = {
 
     let buyMessage = configs.strings.buySuccess
       .replace("{sellerTag}", "<@" + seller.userId + ">")
-      .replace("{paidCoins}", shop[itemNumber].coins);
-    buyMessage = Utils.replaceTemplates(buyMessage, message, shop[itemNumber].item);
+      .replace("{paidCoins}", shop[itemNumber].coins)
+      .replace("{itemName}", Utils.removeUrls((shop[itemNumber].item)));
+    buyMessage = Utils.replaceTemplates(buyMessage, message, null);
     message.channel.send(buyMessage);
   },
   invGive: async function (message, db, bot, configs, trickArgs, userArgs) {
