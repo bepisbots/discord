@@ -14,23 +14,50 @@ module.exports = {
       if (err) return;
       if (!allTricks) return;
 
+      const fns = Functions.getFunctions();
+      const cats = Functions.getCategories();
+      let textMsg = "```md";
+
+      // Categorize all tricks by function
+      // let tricksByFn = {};
+      // allTricks.forEach(t => {
+      //   const fnName = t.say.split(" ")[0];
+      //   if (fns[fnName]) {
+      //     tricksByFn[fnName].push(t);
+      //   } else {
+      //     tricksByFn["OTHER"].push(t);
+      //   }
+      // });
+
+      // Generate help by category
+      // Object.keys(cats).forEach(cat => {
+      //   textMsg += "\n\n" + cats[cat] + "\n==================\n";
+      //   Object.keys(fns).filter(name => fns[name].category === cat)
+      //     .forEach(name => {
+      //       const tricks = tricksByFn[name];
+
+      //     }
+      //       textMsg += "[" + trick.name + "] : " + 
+      //     });
+
+      // });
+
       let regularTricks = allTricks
-        .filter(t => !Functions.getFunctions()[t.say.split(" ")[0]] || !Functions.getFunctions()[t.say.split(" ")[0]].onlyAdmin)
+        .filter(t => !fns[t.say.split(" ")[0]] || !fns[t.say.split(" ")[0]].onlyAdmin)
         .map(v => v.name)
         .sort();
 
       let adminTricks = allTricks
-        .filter(t => Functions.getFunctions()[t.say.split(" ")[0]] && Functions.getFunctions()[t.say.split(" ")[0]].onlyAdmin)
+        .filter(t => fns[t.say.split(" ")[0]] && fns[t.say.split(" ")[0]].onlyAdmin)
         .map(v => v.name + " " + v.say)
         .sort();
 
       const isAdmin = Utils.isAdmin(message);
 
-      let functionsHelp = Object.values(Functions.getFunctions())
-        .filter(fn => fn.help)
-        .map(fn => fn.help);
+      let functionsHelp = Object.keys(fns)
+        .filter(fn => fns[fn].help)
+        .map(fn => fn + " :" + fns[fn].help);
 
-      let textMsg = "```md";
       if (isAdmin) {
         textMsg += "\n\nNon-Admin Commands\n==================\n"
       } else {

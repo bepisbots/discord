@@ -62,10 +62,10 @@ module.exports = {
       channelIds = channelIds.filter((item, pos) => channelIds.indexOf(item) === pos);
 
       channelIds.forEach(ch => {
-        const message0 = "Processing Channel Id: " + ch;
-        console.log(Date() + ": " + message0);
+        const text = "Processing Channel Id: " + ch;
+        console.log(Date() + ": " + text);
         if (message) {
-          message.channel.send(message0);
+          message.channel.send(text);
         }
         processChannel(db, bot, message, ch);
       });
@@ -79,10 +79,10 @@ async function processChannel(db, bot, message, channelId) {
   const col = db.collection("posts");
   let counter = 0;
   if (!channel) {
-    const message0 = "Channel does not exist on this Server. Change server and run command again:" + channelId;
-    console.log(Date() + ": " + message0);
+    const text = "Channel does not exist on this Server. Change server and run command again:" + channelId;
+    console.log(Date() + ": " + text);
     if (message) {
-      message.channel.send(message0);
+      message.channel.send(text);
     }
     return;
   }

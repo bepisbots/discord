@@ -41,6 +41,10 @@ module.exports = {
       .replace("{userTag}", (message ? "<@" + message.author.id + ">" : ""));
   },
   hexColors: {
-    red: 0xFF3333
+    red: 0xFF3333,
+    yellow: 0xFFD133,
+    brownOrange: 0xff8040,
+    greyDiscord: 0x36393E,
+    blueSky: 0x2770EA
   }
 };

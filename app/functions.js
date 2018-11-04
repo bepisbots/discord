@@ -6,6 +6,7 @@ const Discord = require('discord.js');
 
 module.exports = {
   getFunctions: function () { return FUNCTIONS; },
+  getCategories: function () { return CASTEGORIES; },
   exists: function (name) {
     return (Object.keys(FUNCTIONS).find(f => f === name));
   },
@@ -80,99 +81,121 @@ function getCommandHelpFormat(command, functionParameters) {
   return msg;
 }
 
+const CASTEGORIES = {
+  inventory: "Inventory",
+  Trade: "Trade",
+  Admin: "Admin",
+  General: "General"
+};
+
 // All functions take same arguments
 const FUNCTIONS = {
   "SCAN_CHANNELS": {
     onlyAdmin: true,
     fn: Admin.scanChannels,
-    help: "!trick [name] SCAN_CHANNELS (Admin Only)",
+    category: CASTEGORIES.Admin,
+    help: "Scans channel for new messages",
     setupParams: {},
     userParams: { channelId: { isOptional: true } }
   },
   "NEW_TRICK": {
     onlyAdmin: true,
     fn: Admin.newTrick,
-    help: "!trick [name] NEW_TRICK (Admin Only)",
+    category: CASTEGORIES.Admin,
+    help: "Teaches new keyword to execute a function",
     setupParams: {},
     userParams: {}
   },
   "FORGET_TRICK": {
     onlyAdmin: true,
     fn: Admin.forgetTrick,
-    help: "!trick [name] FORGET_TRICK (Admin Only)",
+    category: CASTEGORIES.Admin,
+    help: "Removes keyword",
     setupParams: {},
     userParams: { trickName: {} }
   },
   "LIST_TRICKS": {
     fn: General.listTricks,
-    help: "!trick [name] LIST_TRICKS",
+    category: CASTEGORIES.General,
+    help: "Lists help for all keypords",
     setupParams: {},
     userParams: {}
   },
   "RANDOM_POST": {
     fn: General.randomPost,
-    help: "!trick [name] RANDOM_POST [channelId]",
+    category: CASTEGORIES.General,
+    help: "Shows a random message from {channelId}",
     setupParams: { channelId: {} },
     userParams: {}
   },
   "CATCH_INVENTORY": {
     fn: Inventory.invCatch,
-    help: "!trick [name] CATCH_INVENTORY [channelId] [hoursToWait]",
+    category: CASTEGORIES.Inventory,
+    help: "Catches item into inventory from {channelId}",
     setupParams: { channelId: {} },
     userParams: {}
   },
   "LIST_INVENTORY": {
     fn: Inventory.invList,
-    help: "!trick [name] LIST_INVENTORY",
+    category: CASTEGORIES.Inventory,
+    help: "Shows all inventory",
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 0 } }
   },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
-    help: "!trick [name] SHOW_INVENTORY",
+    category: CASTEGORIES.Inventory,
+    help: "Shows an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "TRASH_INVENTORY": {
     fn: Inventory.invTrash,
-    help: "!trick [name] TRASH_INVENTORY",
+    category: CASTEGORIES.Inventory,
+    help: "Removes an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SELL_INVENTORY": {
     fn: Inventory.invSell,
-    help: "!trick [name] SELL_INVENTORY",
+    category: CASTEGORIES.Trade,
+    help: "Sells an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {}, totalCost: {} },
   },
   "UNSELL_INVENTORY": {
     fn: Inventory.invUnSell,
-    help: "!trick [name] UNSELL_INVENTORY",
+    category: CASTEGORIES.Trade,
+    help: "Stops selling an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SHOP_INVENTORY": {
     fn: Inventory.invShop,
-    help: "!trick [name] SHOP_INVENTORY",
+    category: CASTEGORIES.Trade,
+    help: "Shows what's in the shop",
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 0 } }
   },
   "BUY_INVENTORY": {
     fn: Inventory.invBuy,
-    help: "!trick [name] BUY_INVENTORY",
+    category: CASTEGORIES.Trade,
+    help: "Buys an item from the shop",
     setupParams: {},
     userParams: { shopItemNumber: {} }
   },
   "GIVE_AWAY_INVENTORY": {
     fn: Inventory.invGive,
-    help: "!trick [name] GIVE_AWAY_INVENTORY",
+    category: CASTEGORIES.Trade,
+    help: "Releases an item from your inventory in exchanage for a reward",
     setupParams: {},
     userParams: { inventoryItemNumber: {} }
   },
   "CHANGE_COLOR_INVENTORY": {
     onlyAdmin: true,
+    category: CASTEGORIES.Admin,
     fn: Inventory.invColor,
-    help: "!trick [name] CHANGE_COLOR_INVENTORY",
+    help: "Changes color of inventory",
     setupParams: {},
     userParams: { userTag: {}, hexColor: {} }
   },

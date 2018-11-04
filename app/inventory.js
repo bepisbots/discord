@@ -29,7 +29,7 @@ module.exports = {
       const title = configs.strings.shopTitle + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
       message.channel.send({
         embed: {
-          color: 16765235,
+          color: Utils.hexColors.yellow,
           title: title,
           description: shopMessage
         }
@@ -162,7 +162,7 @@ module.exports = {
       const footer = configs.strings.invShowTotalCoins
         .replace("{coins}", usrDoc.coins || 0)
         .replace("{userTag}", "<@" + message.author.id + ">");
-      let sideBarColor = 0xff8040;
+      let sideBarColor = Utils.hexColors.brownOrange;
       if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
         sideBarColor = usrDoc.preferences.sideBarColor;
       }
@@ -194,7 +194,7 @@ module.exports = {
       const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
       if (invEntry) {
         const embed = new Discord.RichEmbed()
-          .setColor(0xFF3333)
+          .setColor(Utils.hexColors.red)
           .setTitle(Utils.removeUrls(invEntry.content))
           .setImage(Utils.getUrl(invEntry.content));
         message.channel.send({ embed });
@@ -300,7 +300,7 @@ module.exports = {
           .replace("{userTag}", "<@" + message.author.id + ">")
           .replace("{itemName}", Utils.removeUrls(catched.content))
         const embed = new Discord.RichEmbed()
-          .setColor(0x36393E)
+          .setColor(Utils.hexColors.greyDiscord)
           .setDescription(text)
           .setImage(Utils.getUrl(catched.content));
         message.channel.send({ embed });
@@ -310,7 +310,7 @@ module.exports = {
   invBuy: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     if (!userArgs || userArgs.length < 1) {
       const embed = new Discord.RichEmbed()
-        .setColor(0xFF3333)
+        .setColor(Utils.hexColors.red)
         .setDescription(configs.strings.buyError
           .replace("{userTag}", "<@" + message.author.id + ">"));
       message.channel.send({ embed });
@@ -326,7 +326,7 @@ module.exports = {
     let buyer = await usrCol.findOne({ userId: message.author.id });
     if (!parseInt(buyer.coins) || parseInt(shopItem.coins) > parseInt(buyer.coins)) {
       const embed = new Discord.RichEmbed()
-        .setColor(0xFF3333)
+        .setColor(Utils.hexColors.red)
         .setDescription(configs.strings.buyNotEnoughCoins
           .replace("{userTag}", "<@" + message.author.id + ">"));
       message.channel.send({ embed });
@@ -348,7 +348,7 @@ module.exports = {
       await usrCol.save(seller);
     }
     // Update buyer
-    if (buyer.userId === seller.userId){
+    if (buyer.userId === seller.userId) {
       buyer = seller;
     }
     buyer.coins = parseInt(buyer.coins) - parseInt(shopItem.coins);
