@@ -37,7 +37,10 @@ module.exports = {
   replaceTemplates: function (text, message, item) {
     if (!text) return;
     return text
-      .replace("{itemName}", (item ? this.removeUrls(item.content): ""))
-      .replace("{userTag}", (message ? "<@" + message.author.id + ">": ""));
+      .replace("{itemName}", (item ? this.removeUrls(item.content) : ""))
+      .replace("{userTag}", (message ? "<@" + message.author.id + ">" : ""));
+  },
+  hexColors: {
+    red: 0xFF3333
   }
 };

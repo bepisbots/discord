@@ -127,7 +127,7 @@ const trick = async function (cmd, message, db, bot, configs, userArgs) {
         let trickArgs = trick.say.trim().split(" "); // break the message into part by spaces
         if (!trickArgs) return false;
         if (Functions.exists(trickArgs[0])) {
-            Functions.run(trickArgs[0], message, db, bot, configs, trickArgs, userArgs)
+            Functions.run(cmd, trickArgs[0], message, db, bot, configs, trickArgs, userArgs)
         } else
             message.channel.send(entities.decode(trick.say));
     } catch (e) {

@@ -9,9 +9,8 @@ module.exports = {
     await col.find().toArray(function (err, shop) {
       if (err) return;
       if (!shop) return;
-
       const totalPages = Math.ceil(shop.length / PAGE_SIZE);
-      if (pageNumber + 1 > totalPages) 
+      if (pageNumber + 1 > totalPages)
         pageNumber = totalPages - 1;
       const startElement = (pageNumber * PAGE_SIZE);
       const endElement = startElement + PAGE_SIZE;
@@ -27,7 +26,7 @@ module.exports = {
           .replace("{coins}", i.coins) + "\n";
         id++;
       });
-      const title = configs.strings.shopTitle + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages: "");
+      const title = configs.strings.shopTitle + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
       message.channel.send({
         embed: {
           color: 16765235,
@@ -72,7 +71,7 @@ module.exports = {
     }
     const itemNumber = cmdArgs[1] - 1;
     const coins = parseInt(cmdArgs[2]);
-    if (!coins || coins <= 0 || coins > 100) {
+    if (!coins || coins <= 0 || coins > 1000) {
       message.channel.send(configs.strings.sellErrorCoins
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
@@ -144,7 +143,7 @@ module.exports = {
       if (!usrDoc.inventory) return;
       let inventory = Object.values(usrDoc.inventory);
       const totalPages = Math.ceil(inventory.length / PAGE_SIZE);
-      if (pageNumber + 1 > totalPages) 
+      if (pageNumber + 1 > totalPages)
         pageNumber = totalPages - 1;
       const startElement = (pageNumber * PAGE_SIZE);
       const endElement = startElement + PAGE_SIZE;
@@ -167,7 +166,7 @@ module.exports = {
       if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
         sideBarColor = usrDoc.preferences.sideBarColor;
       }
-      const title = "**Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages: "");
+      const title = "**Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
       message.channel.send({
         embed: {
           color: sideBarColor,
@@ -308,7 +307,7 @@ module.exports = {
       });
     });
   },
-  invBuy: async function (message, db, bot, configs, trickArgs, userArgs) {
+  invBuy: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     if (!userArgs || userArgs.length < 1) {
       const embed = new Discord.RichEmbed()
         .setColor(0xFF3333)
@@ -317,24 +316,15 @@ module.exports = {
       message.channel.send({ embed });
       return;
     }
-    const itemNumber = userArgs[0] - 1;
     // find item in inventory
     const shopCol = db.collection("shop");
-    let shop = await shopCol.find().toArray();
-    if (!shop) return;
-    if (!shop[itemNumber]) {
-      const embed = new Discord.RichEmbed()
-        .setColor(0xFF3333)
-        .setDescription(configs.strings.buyError
-          .replace("{userTag}", "<@" + message.author.id + ">"));
-      message.channel.send({ embed });
-      return;
-    }
+    const shopItem = params['shopItemNumber'];
+
     const user = message.author.username;
     if (!user) return;
     const usrCol = db.collection("users");
     let buyer = await usrCol.findOne({ userId: message.author.id });
-    if (!parseInt(buyer.coins) || parseInt(shop[itemNumber].coins) > parseInt(buyer.coins)) {
+    if (!parseInt(buyer.coins) || parseInt(shopItem.coins) > parseInt(buyer.coins)) {
       const embed = new Discord.RichEmbed()
         .setColor(0xFF3333)
         .setDescription(configs.strings.buyNotEnoughCoins
@@ -342,12 +332,12 @@ module.exports = {
       message.channel.send({ embed });
       return;
     }
-    const itemId = shop[itemNumber].itemId;
+    const itemId = shopItem.itemId;
     // Update seller
-    let seller = await usrCol.findOne({ userId: shop[itemNumber].userId });
+    let seller = await usrCol.findOne({ userId: shopItem.userId });
     if (seller) {
       if (!parseInt(seller.coins)) seller.coins = 0;
-      seller.coins += parseInt(shop[itemNumber].coins);
+      seller.coins += parseInt(shopItem.coins);
       if (seller.inventory[itemId]) {
         seller.inventory[itemId].selling--;
         seller.inventory[itemId].quantity--;
@@ -358,24 +348,27 @@ module.exports = {
       await usrCol.save(seller);
     }
     // Update buyer
-    buyer.coins = parseInt(buyer.coins) - parseInt(shop[itemNumber].coins);
+    if (buyer.userId === seller.userId){
+      buyer = seller;
+    }
+    buyer.coins = parseInt(buyer.coins) - parseInt(shopItem.coins);
     if (buyer.inventory[itemId]) {
       buyer.inventory[itemId].quantity++;
     } else {
       buyer.inventory[itemId] = {
-        content: shop[itemNumber].item,
+        content: shopItem.item,
         quantity: 1
       };
     }
     await usrCol.save(buyer);
 
     // Update shop
-    await shopCol.deleteOne(shop[itemNumber]);
+    await shopCol.deleteOne(shopItem);
 
     let buyMessage = configs.strings.buySuccess
       .replace("{sellerTag}", "<@" + seller.userId + ">")
-      .replace("{paidCoins}", shop[itemNumber].coins)
-      .replace("{itemName}", Utils.removeUrls((shop[itemNumber].item)));
+      .replace("{paidCoins}", shopItem.coins)
+      .replace("{itemName}", Utils.removeUrls((shopItem.item)));
     buyMessage = Utils.replaceTemplates(buyMessage, message, null);
     message.channel.send(buyMessage);
   },
