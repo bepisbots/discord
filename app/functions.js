@@ -45,6 +45,10 @@ const FUNCTIONS = {
     fn: Inventory.invCatch,
     help: "!trick [name] CATCH_INVENTORY [channelId] [hoursToWait]"
   },
+  "LIST_INVENTORY": {
+    fn: Inventory.invList,
+    help: "!trick [name] LIST_INVENTORY"
+  },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
     help: "!trick [name] SHOW_INVENTORY"

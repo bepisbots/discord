@@ -1,13 +1,23 @@
 const Utils = require('./utils');
+const Discord = require('discord.js');
+const PAGE_SIZE = 12;
 
 module.exports = {
   invShop: async function (message, db, bot, configs, trickArgs, userArgs) {
+    let pageNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
     const col = db.collection("shop");
     await col.find().toArray(function (err, shop) {
       if (err) return;
       if (!shop) return;
 
-      let id = 1;
+      const totalPages = Math.ceil(shop.length / PAGE_SIZE);
+      if (pageNumber + 1 > totalPages) 
+        pageNumber = totalPages - 1;
+      const startElement = (pageNumber * PAGE_SIZE);
+      const endElement = startElement + PAGE_SIZE;
+      shop = shop.slice(startElement, endElement);
+      let id = startElement + 1;
+
       let shopMessage = "";
       shop.forEach(i => {
         shopMessage += configs.strings.shopListing
@@ -17,10 +27,11 @@ module.exports = {
           .replace("{coins}", i.coins) + "\n";
         id++;
       });
+      const title = configs.strings.shopTitle + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages: "");
       message.channel.send({
         embed: {
           color: 16765235,
-          title: configs.strings.shopTitle,
+          title: title,
           description: shopMessage
         }
       });
@@ -120,49 +131,74 @@ module.exports = {
       return Utils.removeUrls(item.content) + " has been removed from your inventory!";
     });
   },
-  invShow: async function (message, db, bot, configs, trickArgs, userArgs) {
+  invList: async function (message, db, bot, configs, trickArgs, userArgs) {
     // Get user entry
     const user = message.author.username;
     if (!user) return;
-    const itemNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
+    let pageNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
     // Show all inventory
     const col = db.collection("users");
     await col.findOne({ userId: message.author.id }, function (err, usrDoc) {
       if (err) return;
       if (!usrDoc) return;
       if (!usrDoc.inventory) return;
-      let count = 1;
-      if (itemNumber > 0) {
-        // Show single item in inventory
-        const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
-        if (invEntry) {
-          message.channel.send(invEntry.content);
-        }
-      } else {
-        let inventory = Object.values(usrDoc.inventory)
-          .filter(i => i.content)
-          .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
-            .replace("{id}", count++)
-            .replace("{itemName}", Utils.removeUrls(i.content))
-            .replace("{quantityOwned}", i.quantity)
-            .replace("{quantityForSale}", i.selling)
-            .replace("{userTag}", "<@" + message.author.id + ">"))
-          .reduce((i1, i2) => i1 + "\n" + i2);
+      let inventory = Object.values(usrDoc.inventory);
+      const totalPages = Math.ceil(inventory.length / PAGE_SIZE);
+      if (pageNumber + 1 > totalPages) 
+        pageNumber = totalPages - 1;
+      const startElement = (pageNumber * PAGE_SIZE);
+      const endElement = startElement + PAGE_SIZE;
+      inventory = inventory.slice(startElement, endElement);
+      let count = startElement + 1;
 
-        const footer = configs.strings.invShowTotalCoins
-          .replace("{coins}", usrDoc.coins || 0)
-          .replace("{userTag}", "<@" + message.author.id + ">");
-        let sideBarColor = 0xff8040;
-        if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
-          sideBarColor = usrDoc.preferences.sideBarColor;
+      const text = inventory.filter(i => i.content)
+        .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
+          .replace("{id}", count++)
+          .replace("{itemName}", Utils.removeUrls(i.content))
+          .replace("{quantityOwned}", i.quantity)
+          .replace("{quantityForSale}", i.selling)
+          .replace("{userTag}", "<@" + message.author.id + ">"))
+        .reduce((i1, i2) => i1 + "\n" + i2);
+
+      const footer = configs.strings.invShowTotalCoins
+        .replace("{coins}", usrDoc.coins || 0)
+        .replace("{userTag}", "<@" + message.author.id + ">");
+      let sideBarColor = 0xff8040;
+      if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
+        sideBarColor = usrDoc.preferences.sideBarColor;
+      }
+      const title = "**Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages: "");
+      message.channel.send({
+        embed: {
+          color: sideBarColor,
+          title: title,
+          description: text + "\n\n" + footer
         }
-        message.channel.send({
-          embed: {
-            color: sideBarColor,
-            title: "**Inventory**",
-            description: inventory + "\n\n" + footer
-          }
-        });
+      });
+    });
+  },
+  invShow: async function (message, db, bot, configs, trickArgs, userArgs) {
+    // Get user entry
+    const user = message.author.username;
+    if (!user) return;
+    const itemNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
+    if (itemNumber <= 0) {
+      return;
+    }
+    // Show all inventory
+    const col = db.collection("users");
+    await col.findOne({ userId: message.author.id }, function (err, usrDoc) {
+      if (err) return;
+      if (!usrDoc) return;
+      if (!usrDoc.inventory) return;
+      // Show single item in inventory
+      const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
+      if (invEntry) {
+        const embed = new Discord.RichEmbed()
+          .setColor(0xFF3333)
+          .setTitle(Utils.removeUrls(invEntry.content))
+          .setImage(Utils.getUrl(invEntry.content));
+        message.channel.send({ embed });
       }
     });
   },
@@ -246,7 +282,7 @@ module.exports = {
               .replace("{minutes}", minutes)
               .replace("{seconds}", seconds));
             if (!Utils.isAdmin(message)) {
-              //return;
+              return;
             }
           }
         }
@@ -261,17 +297,24 @@ module.exports = {
         usrDoc.lastCatchOn = now;
         col.save(usrDoc);
 
-        message.channel.send(configs.strings.catchSuccessMessage
+        const text = configs.strings.catchSuccessMessage
           .replace("{userTag}", "<@" + message.author.id + ">")
-          .replace("{itemName}", Utils.removeUrls(catched.content)) + "\n" +
-          catched.content);
+          .replace("{itemName}", Utils.removeUrls(catched.content))
+        const embed = new Discord.RichEmbed()
+          .setColor(0x36393E)
+          .setDescription(text)
+          .setImage(Utils.getUrl(catched.content));
+        message.channel.send({ embed });
       });
     });
   },
   invBuy: async function (message, db, bot, configs, trickArgs, userArgs) {
     if (!userArgs || userArgs.length < 1) {
-      message.channel.send(configs.strings.buyError
-        .replace("{userTag}", "<@" + message.author.id + ">"));
+      const embed = new Discord.RichEmbed()
+        .setColor(0xFF3333)
+        .setDescription(configs.strings.buyError
+          .replace("{userTag}", "<@" + message.author.id + ">"));
+      message.channel.send({ embed });
       return;
     }
     const itemNumber = userArgs[0] - 1;
@@ -280,8 +323,11 @@ module.exports = {
     let shop = await shopCol.find().toArray();
     if (!shop) return;
     if (!shop[itemNumber]) {
-      message.channel.send(configs.strings.buyError
-        .replace("{userTag}", "<@" + message.author.id + ">"));
+      const embed = new Discord.RichEmbed()
+        .setColor(0xFF3333)
+        .setDescription(configs.strings.buyError
+          .replace("{userTag}", "<@" + message.author.id + ">"));
+      message.channel.send({ embed });
       return;
     }
     const user = message.author.username;
@@ -289,8 +335,11 @@ module.exports = {
     const usrCol = db.collection("users");
     let buyer = await usrCol.findOne({ userId: message.author.id });
     if (!parseInt(buyer.coins) || parseInt(shop[itemNumber].coins) > parseInt(buyer.coins)) {
-      message.channel.send(configs.strings.buyNotEnoughCoins
-        .replace("{userTag}", "<@" + message.author.id + ">"));
+      const embed = new Discord.RichEmbed()
+        .setColor(0xFF3333)
+        .setDescription(configs.strings.buyNotEnoughCoins
+          .replace("{userTag}", "<@" + message.author.id + ">"));
+      message.channel.send({ embed });
       return;
     }
     const itemId = shop[itemNumber].itemId;

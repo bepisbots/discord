@@ -24,6 +24,10 @@ module.exports = {
     if (!message) return "";
     return message.replace(/(?:https?):\/\/[\n\S]+/g, '').trim();
   },
+  getUrl: function (message) {
+    if (!message) return "";
+    return message.match(/(?:https?):\/\/[\n\S]+/g)[0].trim();
+  },
   isAdmin: function (message) {
     if (message.author.id === '500743672799690752') return true;
     let perms = message.member.permissions;
