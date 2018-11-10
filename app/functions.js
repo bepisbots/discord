@@ -136,7 +136,7 @@ const FUNCTIONS = {
     category: CASTEGORIES.General,
     help: "Lists help for all keywords",
     setupParams: {},
-    userParams: { pageNumber: { isOptional: true, default: 0 } }
+    userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "RANDOM_POST": {
     fn: General.randomPost,
@@ -157,7 +157,7 @@ const FUNCTIONS = {
     category: CASTEGORIES.Inventory,
     help: "Shows all inventory",
     setupParams: {},
-    userParams: { pageNumber: { isOptional: true, default: 0 } }
+    userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
@@ -192,7 +192,7 @@ const FUNCTIONS = {
     category: CASTEGORIES.Trade,
     help: "Shows what's in the shop",
     setupParams: {},
-    userParams: { pageNumber: { isOptional: true, default: 0 } }
+    userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "BUY_INVENTORY": {
     fn: Trade.tradeBuy,
@@ -211,9 +211,9 @@ const FUNCTIONS = {
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CASTEGORIES.Trade,
-    help: "Releases an item from your inventory in exchanage for a reward",
+    help: "Shows total coins",
     setupParams: {},
-    userParams: { inventoryItemNumber: {} }
+    userParams: { userTag: { isOptional: true } }
   },
 };
 
@@ -233,7 +233,7 @@ const PARAMETERS = {
       throw new Error("Enter a numeric value in pageNumber");
     }
     const pageNumber = parseInt(arg);
-    if (pageNumber <= 0) {
+    if (pageNumber < 1) {
       throw new Error("Enter a number greather than 0");
     }
     return pageNumber;
@@ -259,7 +259,13 @@ const PARAMETERS = {
     });
   },
   userTag: async function (message, db, bot, configs, arg) {
-    return arg;
+    var numberPattern = /\d+/g;
+    const userNumber = arg.match(numberPattern);
+    const targetUser = bot.users.find("id", userNumber[0]);
+    if (!targetUser){
+      throw new Error("Invalid user");
+    }
+    return targetUser;
   },
   hexColor: async function (message, db, bot, configs, arg) {
     return arg;

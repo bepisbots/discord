@@ -44,20 +44,20 @@ module.exports = {
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
-    const usrDoc = params['userRecord'];
+    const userRecord = params['userRecord'];
 
-    if (!usrDoc.inventory) return;
-    const invKeys = Object.keys(usrDoc.inventory);
+    if (!userRecord.inventory) return;
+    const invKeys = Object.keys(userRecord.inventory);
     if (invKeys.length < itemNumber || itemNumber < 0) return;
     const key = invKeys[itemNumber];
     if (!key) return;
-    const item = usrDoc.inventory[key];
+    const item = userRecord.inventory[key];
     if (!item) return;
     if (!item.selling || item.selling <= 0) return;
     item.selling--;
 
     const userCol = db.collection("users");
-    userCol.save(usrDoc);
+    userCol.save(userRecord);
 
     const shopCol = db.collection("shop");
     await shopCol.deleteOne({ userId: message.author.id, itemId: key });
@@ -79,14 +79,14 @@ module.exports = {
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
-    const usrDoc = params['userRecord'];
+    const userRecord = params['userRecord'];
 
-    if (!usrDoc.inventory) return;
-    const invKeys = Object.keys(usrDoc.inventory);
+    if (!userRecord.inventory) return;
+    const invKeys = Object.keys(userRecord.inventory);
     if (invKeys.length < itemNumber || itemNumber < 0) return;
     const key = invKeys[itemNumber];
     if (!key) return;
-    const item = usrDoc.inventory[key];
+    const item = userRecord.inventory[key];
     if (!item) return;
     if (!item.selling) {
       item.selling = 1;
@@ -96,7 +96,7 @@ module.exports = {
       return;
 
     const userCol = db.collection("users");
-    userCol.save(usrDoc);
+    userCol.save(userRecord);
 
     const shopCol = db.collection("shop");
     await shopCol.insertOne({
@@ -224,5 +224,22 @@ module.exports = {
     message.channel.send(textMessage);
   },
   showCoins: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+    let userRecord;
+    let userId;
+    let userTag = params['userTag'];
+    if (userTag) {
+      userId = userTag.id;
+      const usrCol = db.collection("users");
+      userRecord = await usrCol.findOne({ userId: userId });
+    } else {
+      userRecord = params['userRecord'];
+      userId = userRecord.userId;
+    }
+    if (!userRecord){
+      return;
+    }
+    message.channel.send(configs.strings.invShowTotalCoins
+      .replace("{coins}", userRecord.coins || 0)
+      .replace("{userTag}", "<@" + userId + ">"));
   }
 };

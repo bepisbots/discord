@@ -6,33 +6,33 @@ module.exports = {
   invTrash: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     // Get user entry
     const itemNumber = cmdArgs[1] - 1;
-    let usrDoc = params['userRecord'];
+    let userRecord = params['userRecord'];
 
-    if (!usrDoc || !usrDoc.inventory) return;
-    const invKeys = Object.keys(usrDoc.inventory);
+    if (!userRecord || !userRecord.inventory) return;
+    const invKeys = Object.keys(userRecord.inventory);
     if (invKeys.length < itemNumber || itemNumber < 0) return;
     const key = invKeys[itemNumber];
     if (!key) return;
-    const item = usrDoc.inventory[key];
+    const item = userRecord.inventory[key];
     if (!item) return;
     if (item.quantity <= 1) {
-      delete usrDoc.inventory[key];
+      delete userRecord.inventory[key];
     } else {
       item.quantity--;
     }
     const userCol = db.collection("users");
-    userCol.save(usrDoc);
+    userCol.save(userRecord);
 
     message.channel.send(Utils.removeUrls(item.content) + " has been removed from your inventory!");
   },
   invList: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     // Get user entry
     let pageNumber = params['pageNumber'] - 1;
-    let usrDoc = params['userRecord'];
-    if (!usrDoc || !usrDoc.inventory) return;
-    let inventory = Object.values(usrDoc.inventory);
+    let userRecord = params['userRecord'];
+    if (!userRecord || !userRecord.inventory) return;
+    let inventory = Object.values(userRecord.inventory);
     const totalPages = Math.ceil(inventory.length / PAGE_SIZE);
-    if (pageNumber + 1> totalPages)
+    if (pageNumber + 1 > totalPages)
       pageNumber = totalPages - 1;
     const startElement = (pageNumber * PAGE_SIZE);
     const endElement = startElement + PAGE_SIZE;
@@ -48,19 +48,16 @@ module.exports = {
         .replace("{userTag}", "<@" + message.author.id + ">"))
       .reduce((i1, i2) => i1 + "\n" + i2);
 
-    const footer = configs.strings.invShowTotalCoins
-      .replace("{coins}", usrDoc.coins || 0)
-      .replace("{userTag}", "<@" + message.author.id + ">");
     let sideBarColor = Utils.hexColors.brownOrange;
-    if (usrDoc && usrDoc.preferences && usrDoc.preferences.sideBarColor) {
-      sideBarColor = usrDoc.preferences.sideBarColor;
+    if (userRecord && userRecord.preferences && userRecord.preferences.sideBarColor) {
+      sideBarColor = userRecord.preferences.sideBarColor;
     }
     const title = "**Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
     message.channel.send({
       embed: {
         color: sideBarColor,
         title: title,
-        description: text + "\n\n" + footer
+        description: text
       }
     });
   },
@@ -72,10 +69,10 @@ module.exports = {
     }
     // Show all inventory
     const col = db.collection("users");
-    let usrDoc = params['userRecord'];
-    if (!usrDoc || !usrDoc.inventory) return;
+    let userRecord = params['userRecord'];
+    if (!userRecord || !userRecord.inventory) return;
     // Show single item in inventory
-    const invEntry = Object.values(usrDoc.inventory)[itemNumber - 1];
+    const invEntry = Object.values(userRecord.inventory)[itemNumber - 1];
     if (invEntry) {
       const embed = new Discord.RichEmbed()
         .setColor(Utils.hexColors.red)
@@ -111,8 +108,12 @@ module.exports = {
     const colorNumber = parseInt(colorHex.substr(1), 16);
 
     const col = db.collection("users");
-    let userRecord = params['userRecord'];
-    if (!userRecord || !userRecord.preferences) {
+    const userRecord = await col.findOne({ userId: userNumber[0] });
+    if (!userRecord) {
+      message.channel.send(configs.strings.invColorError);
+      return;
+    }
+    if (!userRecord.preferences) {
       userRecord.preferences = {};
     }
     userRecord.preferences.sideBarColor = colorNumber;
@@ -133,22 +134,22 @@ module.exports = {
     if (!channelId) return;
     const hoursToWait = parseFloat(trickArgs[2]);
     const col = db.collection("users");
-    let usrDoc = params['userRecord'];
+    let userRecord = params['userRecord'];
     Utils.getRandomMessage(db, channelId, configs, (catched) => {
       const igmId = catched._id.toString();
-      if (!usrDoc) {
-        usrDoc = {
+      if (!userRecord) {
+        userRecord = {
           userId: message.author.id,
           username: user,
           createdTimestamp: message.createdTimestamp,
           inventory: {},
         };
-        col.insertOne(usrDoc);
+        col.insertOne(userRecord);
       }
       // Check user has waited hours
       const now = Date.now();
-      if (usrDoc.lastCatchOn && hoursToWait && hoursToWait > 0) {
-        const duration = (now - usrDoc.lastCatchOn)
+      if (userRecord.lastCatchOn && hoursToWait && hoursToWait > 0) {
+        const duration = (now - userRecord.lastCatchOn)
         const hoursSinceLastCatch = duration / 3600000;
         if (hoursToWait > hoursSinceLastCatch) {
           const difference = (hoursToWait * 3600000) - duration;
@@ -165,16 +166,16 @@ module.exports = {
           }
         }
       }
-      if (usrDoc.inventory[igmId]) {
-        usrDoc.inventory[igmId].quantity++;
+      if (userRecord.inventory[igmId]) {
+        userRecord.inventory[igmId].quantity++;
       } else {
-        usrDoc.inventory[igmId] = {
+        userRecord.inventory[igmId] = {
           content: catched.content,
           quantity: 1
         };
       }
-      usrDoc.lastCatchOn = now;
-      col.save(usrDoc);
+      userRecord.lastCatchOn = now;
+      col.save(userRecord);
 
       const text = configs.strings.catchSuccessMessage
         .replace("{userTag}", "<@" + message.author.id + ">")
