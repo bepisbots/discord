@@ -1,6 +1,7 @@
 const Admin = require('./admin');
 const Utils = require('./utils');
 const Inventory = require('./inventory');
+const Trade = require('./trade');
 const General = require('./general');
 const Discord = require('discord.js');
 
@@ -18,7 +19,8 @@ module.exports = {
     // Validate and resolve function parameters
     let asyncParams = [
       ...resolveParams(message, db, bot, configs, command, FUNCTIONS[name].setupParams, trickArgs),
-      ...resolveParams(message, db, bot, configs, command, FUNCTIONS[name].userParams, userArgs)
+      ...resolveParams(message, db, bot, configs, command, FUNCTIONS[name].userParams, userArgs),
+      ...resolveParams(message, db, bot, configs, command, { userRecord: {} }, [message.author.id]),
     ];
 
     Promise.all(asyncParams).then(resolvedParams => {
@@ -82,7 +84,7 @@ function getCommandHelpFormat(command, functionParameters) {
 }
 
 const CASTEGORIES = {
-  inventory: "Inventory",
+  Inventory: "Inventory",
   Trade: "Trade",
   Admin: "Admin",
   General: "General"
@@ -96,6 +98,14 @@ const FUNCTIONS = {
     help: "Bot memories",
     setupParams: {},
     userParams: {}
+  },
+  "CHANGE_COLOR_INVENTORY": {
+    onlyAdmin: true,
+    category: CASTEGORIES.Admin,
+    fn: Inventory.invColor,
+    help: "Changes color of inventory",
+    setupParams: {},
+    userParams: { userTag: {}, hexColor: {} }
   },
   "SCAN_CHANNELS": {
     onlyAdmin: true,
@@ -164,67 +174,78 @@ const FUNCTIONS = {
     userParams: { inventoryItemNumber: {} },
   },
   "SELL_INVENTORY": {
-    fn: Inventory.invSell,
+    fn: Trade.tradeSell,
     category: CASTEGORIES.Trade,
     help: "Sells an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {}, totalCost: {} },
   },
   "UNSELL_INVENTORY": {
-    fn: Inventory.invUnSell,
+    fn: Trade.tradeUnSell,
     category: CASTEGORIES.Trade,
     help: "Stops selling an item from the inventory",
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SHOP_INVENTORY": {
-    fn: Inventory.invShop,
+    fn: Trade.tradeShop,
     category: CASTEGORIES.Trade,
     help: "Shows what's in the shop",
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 0 } }
   },
   "BUY_INVENTORY": {
-    fn: Inventory.invBuy,
+    fn: Trade.tradeBuy,
     category: CASTEGORIES.Trade,
     help: "Buys an item from the shop",
     setupParams: {},
     userParams: { shopItemNumber: {} }
   },
   "GIVE_AWAY_INVENTORY": {
-    fn: Inventory.invGive,
+    fn: Trade.tradeGive,
     category: CASTEGORIES.Trade,
     help: "Releases an item from your inventory in exchanage for a reward",
     setupParams: {},
     userParams: { inventoryItemNumber: {} }
   },
-  "CHANGE_COLOR_INVENTORY": {
-    onlyAdmin: true,
-    category: CASTEGORIES.Admin,
-    fn: Inventory.invColor,
-    help: "Changes color of inventory",
+  "SHOW_COINS": {
+    fn: Trade.showCoins,
+    category: CASTEGORIES.Trade,
+    help: "Releases an item from your inventory in exchanage for a reward",
     setupParams: {},
-    userParams: { userTag: {}, hexColor: {} }
+    userParams: { inventoryItemNumber: {} }
   },
 };
 
 const PARAMETERS = {
+  userRecord: async function (message, db, bot, configs, arg) {
+    const col = db.collection("users");
+    return await col.findOne({ userId: arg });
+  },
   channelId: async function (message, db, bot, configs, arg) {
+    return arg;
   },
   trickName: async function (message, db, bot, configs, arg) {
+    return arg;
   },
   pageNumber: async function (message, db, bot, configs, arg) {
-    if (isNaN(arg)){
+    if (isNaN(arg)) {
       throw new Error("Enter a numeric value in pageNumber");
     }
+    const pageNumber = parseInt(arg);
+    if (pageNumber <= 0) {
+      throw new Error("Enter a number greather than 0");
+    }
+    return pageNumber;
   },
   inventoryItemNumber: async function (message, db, bot, configs, arg) {
-    if (isNaN(arg)){
+    if (isNaN(arg)) {
       throw new Error("Enter a numeric value in inventoryItemNumber");
     }
+    return parseInt(arg);
   },
   shopItemNumber: async function (message, db, bot, configs, arg) {
-    if (isNaN(arg)){
+    if (isNaN(arg)) {
       throw new Error("Enter a numeric value in shopItemNumber");
     }
     const itemNumber = parseInt(arg);
@@ -238,16 +259,19 @@ const PARAMETERS = {
     });
   },
   userTag: async function (message, db, bot, configs, arg) {
+    return arg;
   },
   hexColor: async function (message, db, bot, configs, arg) {
+    return arg;
   },
   totalCost: async function (message, db, bot, configs, arg) {
-    if (isNaN(arg)){
+    if (isNaN(arg)) {
       throw new Error("Enter a numeric value in totalCost");
     }
     const cost = parseInt(arg);
     if (cost <= 0 || cost > 1000) {
       throw new Error("Invalid total cost. Enter a value between 1 and 1000");
     }
+    return cost;
   }
 };

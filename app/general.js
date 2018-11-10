@@ -32,7 +32,7 @@ module.exports = {
         tricksByFn[fnName].push(t);
       });
 
-      const MAX_CHARS_PER_PAGE = 2000;
+      const MAX_CHARS_PER_PAGE = 1800;
 
       var helptext = "";
       var helpSection = "";
@@ -83,7 +83,7 @@ module.exports = {
           if (fnParts.length < 2) { return; }
           let fnParam = fnParts[1];
           const channel = bot.channels.get(fnParam);
-          if (channel){
+          if (channel) {
             help = help.replace("{channelId}", channel.name);
           }
         }
@@ -104,8 +104,10 @@ module.exports = {
             if (!fnTricks || fnTricks.length === 0) {
               return;
             } else if (fnTricks.length < 4) {
-              if (!addLine(cat, "[" + fnTricks[0].name + "]: " + formatHelpMessage(fnDef, fnTricks[0]))) {
-                return;
+              for (trickNo in fnTricks) {
+                if (!addLine(cat, "[" + fnTricks[trickNo].name + "]: " + formatHelpMessage(fnDef, fnTricks[trickNo]))) {
+                  return;
+                }
               }
             } else {
               if (!addLine(cat, fnDef.help)) { return; }
