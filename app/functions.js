@@ -90,6 +90,13 @@ const CASTEGORIES = {
 
 // All functions take same arguments
 const FUNCTIONS = {
+  "NON_FUNCTION": {
+    fn: Admin.scanChannels,
+    category: CASTEGORIES.General,
+    help: "Bot memories",
+    setupParams: {},
+    userParams: {}
+  },
   "SCAN_CHANNELS": {
     onlyAdmin: true,
     fn: Admin.scanChannels,
@@ -117,14 +124,14 @@ const FUNCTIONS = {
   "LIST_TRICKS": {
     fn: General.listTricks,
     category: CASTEGORIES.General,
-    help: "Lists help for all keypords",
+    help: "Lists help for all keywords",
     setupParams: {},
-    userParams: {}
+    userParams: { pageNumber: { isOptional: true, default: 0 } }
   },
   "RANDOM_POST": {
     fn: General.randomPost,
     category: CASTEGORIES.General,
-    help: "Shows a random message from {channelId}",
+    help: "Shows a random message from '{channelId}'",
     setupParams: { channelId: {} },
     userParams: {}
   },

@@ -8,7 +8,8 @@ module.exports = {
       message.channel.send(chosenMessage.content);
     });
   },
-  listTricks: async function (message, db, bot, configs, trickArgs, userArgs) {
+  listTricks: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+    const pageNumber = params['pageNumber'];
     const col = db.collection("tricks");
     await col.find().toArray(function (err, allTricks) {
       if (err) return;
@@ -16,83 +17,146 @@ module.exports = {
 
       const fns = Functions.getFunctions();
       const cats = Functions.getCategories();
-      let textMsg = "```md";
-
-      // Categorize all tricks by function
-      // let tricksByFn = {};
-      // allTricks.forEach(t => {
-      //   const fnName = t.say.split(" ")[0];
-      //   if (fns[fnName]) {
-      //     tricksByFn[fnName].push(t);
-      //   } else {
-      //     tricksByFn["OTHER"].push(t);
-      //   }
-      // });
-
-      // Generate help by category
-      // Object.keys(cats).forEach(cat => {
-      //   textMsg += "\n\n" + cats[cat] + "\n==================\n";
-      //   Object.keys(fns).filter(name => fns[name].category === cat)
-      //     .forEach(name => {
-      //       const tricks = tricksByFn[name];
-
-      //     }
-      //       textMsg += "[" + trick.name + "] : " + 
-      //     });
-
-      // });
-
-      let regularTricks = allTricks
-        .filter(t => !fns[t.say.split(" ")[0]] || !fns[t.say.split(" ")[0]].onlyAdmin)
-        .map(v => v.name)
-        .sort();
-
-      let adminTricks = allTricks
-        .filter(t => fns[t.say.split(" ")[0]] && fns[t.say.split(" ")[0]].onlyAdmin)
-        .map(v => v.name + " " + v.say)
-        .sort();
-
       const isAdmin = Utils.isAdmin(message);
 
-      let functionsHelp = Object.keys(fns)
-        .filter(fn => fns[fn].help)
-        .map(fn => fn + " :" + fns[fn].help);
+      // Categorize all tricks by function
+      let tricksByFn = {};
+      allTricks.forEach(t => {
+        let fnName = t.say.split(" ")[0];
+        if (!fns[fnName]) {
+          fnName = "NON_FUNCTION";
+        }
+        if (!tricksByFn[fnName]) {
+          tricksByFn[fnName] = [];
+        }
+        tricksByFn[fnName].push(t);
+      });
 
-      if (isAdmin) {
-        textMsg += "\n\nNon-Admin Commands\n==================\n"
-      } else {
-        textMsg += "\n\nHelp\n==================\n"
-      }
-      const COLS = 3;
-      const COL_LEN = 20;
-      let colNum = 1;
+      const MAX_CHARS_PER_PAGE = 2000;
 
-      for (command in regularTricks) {
-        const msg = "[" + regularTricks[command] + "]";
-        if (colNum++ < COLS) {
-          let spaces = COL_LEN - msg.length;
-          while (spaces <= 0) {
-            spaces += COL_LEN
-            colNum++;
+      var helptext = "";
+      var helpSection = "";
+      var currentPage = 1;
+      var currCharCount = 0;
+      var lastTitle = "";
+      var reachedTargetPage = false;
+      function addLine(title, line) {
+        if (reachedTargetPage) {
+          return false;
+        }
+        if (!lastTitle) {
+          lastTitle = title;
+        } else if (title !== lastTitle) {
+          endHelpSection();
+          lastTitle = title;
+        }
+
+        if ((currCharCount + line.length + title.length) > MAX_CHARS_PER_PAGE) {
+          endHelpSection();
+          if (currentPage >= pageNumber) {
+            reachedTargetPage = true;
+            return false; // Returns false when it reached the target page
           }
-          textMsg += msg + " ".repeat(spaces);
-        } else {
-          colNum = 1;
-          textMsg += msg + "\n";
+          currCharCount = 0;
+          currentPage++;
+          helptext = "";
+          helpSection = "";
+        }
+        currCharCount += line.length;
+        helpSection += line + "\n";
+        return true;
+      }
+
+      function endHelpSection() {
+        if (helpSection.length > 0) {
+          var newLine = "\n" + lastTitle + "\n==================\n";
+          currCharCount += newLine.length;
+          helptext = helptext + newLine + helpSection;
+          helpSection = "";
         }
       }
-      //textMsg += regularTricks.reduce((n1, n2) => n1 + "\n" + n2);;
-      if (isAdmin) {
-        if (functionsHelp)
-          textMsg += "\n\nProgramable Functions:\n==================\n" +
-            functionsHelp.reduce((n1, n2) => n1 + "\n" + n2);
-        if (adminTricks)
-          textMsg += "\n\nAdmin Commands:\n==================\n" +
-            adminTricks.reduce((n1, n2) => n1 + "\n" + n2);
-      }
-      textMsg += "```";
 
-      message.channel.send(textMsg);
+      function formatHelpMessage(fnDef, trickDef) {
+        var help = fnDef.help;
+        if (help.indexOf("{channelId}") >= 0) {
+          var fnParts = trickDef.say.split(" ");
+          if (fnParts.length < 2) { return; }
+          let fnParam = fnParts[1];
+          const channel = bot.channels.get(fnParam);
+          if (channel){
+            help = help.replace("{channelId}", channel.name);
+          }
+        }
+        return help;
+      }
+
+      // Generate help by category
+      Object.keys(cats).forEach(catIdx => {
+        let cat = cats[catIdx];
+        Object.keys(fns)
+          .filter(fnName => fns[fnName].category === cat)
+          .forEach(fnName => {
+            const fnDef = fns[fnName];
+            if (fnDef.onlyAdmin && !isAdmin) {
+              return;
+            }
+            const fnTricks = tricksByFn[fnName];
+            if (!fnTricks || fnTricks.length === 0) {
+              return;
+            } else if (fnTricks.length < 4) {
+              if (!addLine(cat, "[" + fnTricks[0].name + "]: " + formatHelpMessage(fnDef, fnTricks[0]))) {
+                return;
+              }
+            } else {
+              if (!addLine(cat, fnDef.help)) { return; }
+              const msg = printInColumns(fnTricks, "name") + "\n";
+              const splitLines = msg.split('\n');
+              for (lineNo in splitLines) {
+                var line = splitLines[lineNo].trim();
+                if (!addLine(cat, line)) {
+                  return;
+                }
+              }
+            }
+          });
+      });
+
+      if (isAdmin) {
+        let functionsHelp = Object.keys(fns)
+          .filter(fn => fns[fn].help)
+          .map(fn => fn + ": " + fns[fn].help);
+        for (helpIdx in functionsHelp) {
+          if (!addLine("Programable Functions", functionsHelp[helpIdx])) {
+            break;
+          }
+        }
+      }
+      endHelpSection();
+      message.channel.send("```asciidoc\n" + helptext + "```");
     });
   }
 };
+
+
+function printInColumns(list, elementName) {
+  const COLS = 3;
+  const COL_LEN = 20;
+  let colNum = 1;
+
+  let textMsg = "";
+  for (idx in list) {
+    const msg = "[" + list[idx][elementName] + "]";
+    if (colNum++ < COLS) {
+      let spaces = COL_LEN - msg.length;
+      while (spaces <= 0) {
+        spaces += COL_LEN
+        colNum++;
+      }
+      textMsg += msg + " ".repeat(spaces);
+    } else {
+      colNum = 1;
+      textMsg += msg + "\n";
+    }
+  }
+  return textMsg;
+}
