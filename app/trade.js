@@ -226,16 +226,12 @@ module.exports = {
   showCoins: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     let userRecord;
     let userId;
-    let userTag = params['userTag'];
-    if (userTag) {
-      userId = userTag.id;
-      const usrCol = db.collection("users");
-      userRecord = await usrCol.findOne({ userId: userId });
-    } else {
+    userRecord = params['userTag'];
+    if (!userRecord) {
       userRecord = params['userRecord'];
-      userId = userRecord.userId;
     }
-    if (!userRecord){
+    userId = userRecord.userId;
+    if (!userRecord) {
       return;
     }
     message.channel.send(configs.strings.invShowTotalCoins

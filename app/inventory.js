@@ -28,7 +28,7 @@ module.exports = {
   invList: async function (message, db, bot, configs, trickArgs, userArgs, params) {
     // Get user entry
     let pageNumber = params['pageNumber'] - 1;
-    let userRecord = params['userRecord'];
+    let userRecord = params['userTag'];
     if (!userRecord || !userRecord.inventory) return;
     let inventory = Object.values(userRecord.inventory);
     const totalPages = Math.ceil(inventory.length / PAGE_SIZE);
@@ -45,14 +45,16 @@ module.exports = {
         .replace("{itemName}", Utils.removeUrls(i.content))
         .replace("{quantityOwned}", i.quantity)
         .replace("{quantityForSale}", i.selling)
-        .replace("{userTag}", "<@" + message.author.id + ">"))
+        .replace("{userTag}", "<@" + userRecord.userId + ">"))
       .reduce((i1, i2) => i1 + "\n" + i2);
 
     let sideBarColor = Utils.hexColors.brownOrange;
     if (userRecord && userRecord.preferences && userRecord.preferences.sideBarColor) {
       sideBarColor = userRecord.preferences.sideBarColor;
     }
-    const title = "**Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
+    let title = "**{userTag}'s Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
+    title = title.replace("{userTag}", userRecord.username);
+
     message.channel.send({
       embed: {
         color: sideBarColor,

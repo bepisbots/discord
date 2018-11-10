@@ -41,7 +41,7 @@ function resolveParams(message, db, bot, configs, command, functionParameters, p
   let params = [];
   let argumentIndex = 0;
   Object.keys(functionParameters).forEach(paramName => {
-    const param = PARAMETERS[paramName];
+    let param = PARAMETERS[paramName];
     if (!param) {
       params.push(Promise.resolve(() => {
         throw new Error("Parameter '" + paramName + "' for command '" + command + "' is not defined!");
@@ -53,6 +53,15 @@ function resolveParams(message, db, bot, configs, command, functionParameters, p
       params.push(Promise.resolve().then(() => {
         if (functionParameters[paramName].isOptional) {
           return { name: paramName, value: functionParameters[paramName].default };
+        } else if (functionParameters[paramName].default) {
+          param = PARAMETERS[functionParameters[paramName].default];
+          return param(message, db, bot, configs, arg)
+            .then(resultValue => {
+              return { name: paramName, value: resultValue };
+            })
+            .catch(e => {
+              throw new Error(e.message + "\n\n" + getCommandHelpFormat(command, functionParameters));
+            });
         } else {
           throw new Error(getCommandHelpFormat(command, functionParameters));
         }
@@ -157,7 +166,10 @@ const FUNCTIONS = {
     category: CASTEGORIES.Inventory,
     help: "Shows all inventory",
     setupParams: {},
-    userParams: { pageNumber: { isOptional: true, default: 1 } }
+    userParams: {
+      pageNumber: { isOptional: true, default: 1 },
+      userTag: { default: "userRecord" },
+    }
   },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
@@ -219,6 +231,7 @@ const FUNCTIONS = {
 
 const PARAMETERS = {
   userRecord: async function (message, db, bot, configs, arg) {
+    if (!arg) arg = message.author.id;
     const col = db.collection("users");
     return await col.findOne({ userId: arg });
   },
@@ -261,11 +274,9 @@ const PARAMETERS = {
   userTag: async function (message, db, bot, configs, arg) {
     var numberPattern = /\d+/g;
     const userNumber = arg.match(numberPattern);
-    const targetUser = bot.users.find("id", userNumber[0]);
-    if (!targetUser){
-      throw new Error("Invalid user");
-    }
-    return targetUser;
+    //const targetUser = bot.users.find("id", userNumber[0]);
+    const usrCol = db.collection("users");
+    return await usrCol.findOne({ userId: userNumber[0] });
   },
   hexColor: async function (message, db, bot, configs, arg) {
     return arg;
