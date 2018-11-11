@@ -22,7 +22,24 @@
             "catchSuccessMessage": "**{userTag}**, you have caught a **{itemName}**. Congratulations!!",
             "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
             "giveAwayMessage": " \"**{userTag}**, you received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!\"",
-            "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop"
+            "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop",
+            "nonFunctionHelp": "Bot memories",
+            "invColorHelp": "Changes color of inventory",
+            "scanChannels": "Scans channel for new messages",
+            "newTrick": "Teaches new keyword to execute a function",
+            "forgetTrickHelp": "Removes keyword",
+            "listTricksHelp": "Lists help for all keywords",
+            "randomPostHelp": "Shows a random message from '{channelId}'",
+            "invCatchHelp": "Catches item into inventory from {channelId}",
+            "invListHelp": "Shows all inventory",
+            "invShowHelp": "Shows an item from the inventory",
+            "invTrashHelp": "Removes an item from the inventory",
+            "tradeSellHelp": "Sells an item from the inventory",
+            "tradeUnSellHelp": "Stops selling an item from the inventory",
+            "tradeShopHelp": "Shows what's in the shop",
+            "tradeBuyHelp": "Buys an item from the shop",
+            "tradeGiveHelp": "Releases an item from your inventory in exchanage for a reward",
+            "showCoinsHelp": "Shows total rewards"
         }
     },
     {

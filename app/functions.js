@@ -102,9 +102,8 @@ const CASTEGORIES = {
 // All functions take same arguments
 const FUNCTIONS = {
   "NON_FUNCTION": {
-    fn: Admin.scanChannels,
     category: CASTEGORIES.General,
-    help: "Bot memories",
+    help: Utils.getString("nonFunctionHelp"),
     setupParams: {},
     userParams: {}
   },
@@ -112,7 +111,7 @@ const FUNCTIONS = {
     onlyAdmin: true,
     category: CASTEGORIES.Admin,
     fn: Inventory.invColor,
-    help: "Changes color of inventory",
+    help: Utils.getString("invColorHelp"),
     setupParams: {},
     userParams: { userTag: {}, hexColor: {} }
   },
@@ -120,7 +119,7 @@ const FUNCTIONS = {
     onlyAdmin: true,
     fn: Admin.scanChannels,
     category: CASTEGORIES.Admin,
-    help: "Scans channel for new messages",
+    help: Utils.getString("scanChannels"),
     setupParams: {},
     userParams: { channelId: { isOptional: true } }
   },
@@ -128,7 +127,7 @@ const FUNCTIONS = {
     onlyAdmin: true,
     fn: Admin.newTrick,
     category: CASTEGORIES.Admin,
-    help: "Teaches new keyword to execute a function",
+    help: Utils.getString("newTrick"),
     setupParams: {},
     userParams: {}
   },
@@ -136,35 +135,35 @@ const FUNCTIONS = {
     onlyAdmin: true,
     fn: Admin.forgetTrick,
     category: CASTEGORIES.Admin,
-    help: "Removes keyword",
+    help: Utils.getString("forgetTrickHelp"),
     setupParams: {},
     userParams: { trickName: {} }
   },
   "LIST_TRICKS": {
     fn: General.listTricks,
     category: CASTEGORIES.General,
-    help: "Lists help for all keywords",
+    help: Utils.getString("listTricksHelp"),
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "RANDOM_POST": {
     fn: General.randomPost,
     category: CASTEGORIES.General,
-    help: "Shows a random message from '{channelId}'",
+    help: Utils.getString("randomPostHelp"),
     setupParams: { channelId: {} },
     userParams: {}
   },
   "CATCH_INVENTORY": {
     fn: Inventory.invCatch,
     category: CASTEGORIES.Inventory,
-    help: "Catches item into inventory from {channelId}",
+    help: Utils.getString("invCatchHelp"),
     setupParams: { channelId: {} },
     userParams: {}
   },
   "LIST_INVENTORY": {
     fn: Inventory.invList,
     category: CASTEGORIES.Inventory,
-    help: "Shows all inventory",
+    help: Utils.getString("invListHelp"),
     setupParams: {},
     userParams: {
       pageNumber: { isOptional: true, default: 1 },
@@ -174,56 +173,56 @@ const FUNCTIONS = {
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
     category: CASTEGORIES.Inventory,
-    help: "Shows an item from the inventory",
+    help: Utils.getString("invShowHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "TRASH_INVENTORY": {
     fn: Inventory.invTrash,
     category: CASTEGORIES.Inventory,
-    help: "Removes an item from the inventory",
+    help: Utils.getString("invTrashHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SELL_INVENTORY": {
     fn: Trade.tradeSell,
     category: CASTEGORIES.Trade,
-    help: "Sells an item from the inventory",
+    help: Utils.getString("tradeSellHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {}, totalCost: {} },
   },
   "UNSELL_INVENTORY": {
     fn: Trade.tradeUnSell,
     category: CASTEGORIES.Trade,
-    help: "Stops selling an item from the inventory",
+    help: Utils.getString("tradeUnSellHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SHOP_INVENTORY": {
     fn: Trade.tradeShop,
     category: CASTEGORIES.Trade,
-    help: "Shows what's in the shop",
+    help: Utils.getString("tradeShopHelp"),
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "BUY_INVENTORY": {
     fn: Trade.tradeBuy,
     category: CASTEGORIES.Trade,
-    help: "Buys an item from the shop",
+    help: Utils.getString("tradeBuyHelp"),
     setupParams: {},
     userParams: { shopItemNumber: {} }
   },
   "GIVE_AWAY_INVENTORY": {
     fn: Trade.tradeGive,
     category: CASTEGORIES.Trade,
-    help: "Releases an item from your inventory in exchanage for a reward",
+    help: Utils.getString("tradeGiveHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} }
   },
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CASTEGORIES.Trade,
-    help: "Shows total rewards",
+    help: Utils.getString("showCoinsHelp"),
     setupParams: {},
     userParams: { userTag: { isOptional: true } }
   },
