@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
-  invTrash: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  invTrash: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     const itemNumber = cmdArgs[1] - 1;
     let userRecord = params['userRecord'];
@@ -25,7 +25,7 @@ module.exports = {
 
     message.channel.send(Utils.removeUrls(item.content) + " has been removed from your inventory!");
   },
-  invList: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  invList: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     let pageNumber = params['pageNumber'] - 1;
     let userRecord = params['userTag'];
@@ -40,7 +40,7 @@ module.exports = {
     let count = startElement + 1;
 
     const text = inventory.filter(i => i.content)
-      .map(i => (!i.selling ? configs.strings.invItem : configs.strings.invItemForSale)
+      .map(i => (!i.selling ? Utils.getString("invItem") : Utils.getString("invItemForSale"))
         .replace("{id}", count++)
         .replace("{itemName}", Utils.removeUrls(i.content))
         .replace("{quantityOwned}", i.quantity)
@@ -63,7 +63,7 @@ module.exports = {
       }
     });
   },
-  invShow: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  invShow: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     const itemNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
     if (itemNumber <= 0) {
@@ -83,28 +83,28 @@ module.exports = {
       message.channel.send({ embed });
     }
   },
-  invColor: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  invColor: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     const userTag = userArgs[0];
     if (!userTag) {
-      message.channel.send(configs.strings.invColorError);
+      message.channel.send(Utils.getString("invColorError"));
       return;
     }
     var numberPattern = /\d+/g;
     const userNumber = userTag.match(numberPattern);
     const targetUser = bot.users.find("id", userNumber[0]);
     if (!targetUser) {
-      message.channel.send(configs.strings.invColorError);
+      message.channel.send(Utils.getString("invColorError"));
       return;
     }
     const colorHex = userArgs[1];
     if (!colorHex) {
-      message.channel.send(configs.strings.invColorError);
+      message.channel.send(Utils.getString("invColorError"));
       return;
     }
     var isOk = /^#[0-9A-F]{6}$/i.test(colorHex);
     if (!isOk) {
-      message.channel.send(configs.strings.invColorHexError);
+      message.channel.send(Utils.getString("invColorHexError"));
       return;
     }
     const colorNumber = parseInt(colorHex.substr(1), 16);
@@ -112,7 +112,7 @@ module.exports = {
     const col = db.collection("users");
     const userRecord = await col.findOne({ userId: userNumber[0] });
     if (!userRecord) {
-      message.channel.send(configs.strings.invColorError);
+      message.channel.send(Utils.getString("invColorError"));
       return;
     }
     if (!userRecord.preferences) {
@@ -130,14 +130,14 @@ module.exports = {
     });
 
   },
-  invCatch: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  invCatch: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     const channelId = trickArgs[1];
     if (!channelId) return;
     const hoursToWait = parseFloat(trickArgs[2]);
     const col = db.collection("users");
     let userRecord = params['userRecord'];
-    Utils.getRandomMessage(db, channelId, configs, (catched) => {
+    Utils.getRandomMessage(db, channelId, (catched) => {
       const igmId = catched._id.toString();
       if (!userRecord) {
         userRecord = {
@@ -158,7 +158,7 @@ module.exports = {
           const seconds = parseInt((difference / 1000) % 60);
           const minutes = parseInt((difference / (1000 * 60)) % 60);
           const hours = parseInt((difference / (1000 * 60 * 60)) % 24);
-          message.channel.send(configs.strings.catchWaitMessage
+          message.channel.send(Utils.getString("catchWaitMessage")
             .replace("{userTag}", user)
             .replace("{hours}", hours)
             .replace("{minutes}", minutes)
@@ -179,7 +179,7 @@ module.exports = {
       userRecord.lastCatchOn = now;
       col.save(userRecord);
 
-      const text = configs.strings.catchSuccessMessage
+      const text = Utils.getString("catchSuccessMessage")
         .replace("{userTag}", "<@" + message.author.id + ">")
         .replace("{itemName}", Utils.removeUrls(catched.content))
       const embed = new Discord.RichEmbed()

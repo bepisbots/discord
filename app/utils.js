@@ -1,5 +1,20 @@
+const DataConfigs = require('../data/configs.json');
+
 module.exports = {
-  getRandomMessage: async function (db, channelId, configs, callback) {
+  getConfigs: function () {
+    if (this.configs) {
+      return this.configs;
+    }
+    this.configs = {};
+    DataConfigs.forEach(c => {
+      this.configs[c.type] = c.value;
+    });
+    return this.configs;
+  },
+  getString: function (stringId) {
+    return this.getConfigs().strings[stringId];
+  },
+  getRandomMessage: async function (db, channelId, callback) {
     const col = db.collection("posts");
     col.countDocuments({ channel: channelId }, async function (err, totalMsgs) {
       let count = 0;
@@ -9,7 +24,7 @@ module.exports = {
         var randomMessage = Math.floor(Math.random() * totalMsgs);
         doc = await col.find({ channel: channelId }).limit(-1).skip(randomMessage).next();
         greatestScarcity = 0;
-        configs.symbols.forEach(entry => {
+        Utils.getConfigs().symbols.forEach(entry => {
           let symbol = entry.symbol;
           let scarcity = entry.scarcity;
           if (doc.content.indexOf(symbol) >= 0 && greatestScarcity < scarcity) {
@@ -48,3 +63,5 @@ module.exports = {
     blueSky: 0x2770EA
   }
 };
+
+let configs = {};

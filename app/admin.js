@@ -3,7 +3,7 @@ const config = require('../config.json');
 const entities = new Entities();
 
 module.exports = {
-  newTrick: async function (message, db, bot, configs, trickArgs, userArgs) {
+  newTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 2) {
       message.channel.send('Arf-arf!\nPlease teach me as follows: !newTrick [command] [whatToSay]');
       return;
@@ -30,7 +30,7 @@ module.exports = {
     message.channel.send("Successfully teached new trick!\nWhen you say: !" + trickName + ", I Say:");
     message.channel.send(entities.decode(whatToSay));
   },
-  forgetTrick: async function (message, db, bot, configs, trickArgs, userArgs) {
+  forgetTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 1) {
       message.channel.send('Arf-arf!\nPlease un-teach me as follows: !forgetTrick [command]');
       return;
@@ -39,7 +39,7 @@ module.exports = {
     await col.deleteOne({ name: userArgs[0] });
     message.channel.send("Trick forgotten");
   },
-  scanChannels: async function (message, db, bot, configs, trickArgs, userArgs) {
+  scanChannels: async function (message, db, bot, trickArgs, userArgs) {
     // Find all channels that are listed in tricks
     if (userArgs && userArgs.length >= 2) {
       const ch = userArgs[1];

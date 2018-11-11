@@ -11,23 +11,23 @@ module.exports = {
   exists: function (name) {
     return (Object.keys(FUNCTIONS).find(f => f === name));
   },
-  run: async function (command, name, message, db, bot, configs, trickArgs, userArgs) {
+  run: async function (command, name, message, db, bot, trickArgs, userArgs) {
     const isAdmin = Utils.isAdmin(message);
     if (FUNCTIONS[name].onlyAdmin && !isAdmin) {
       return;
     }
     // Validate and resolve function parameters
     let asyncParams = [
-      ...resolveParams(message, db, bot, configs, command, FUNCTIONS[name].setupParams, trickArgs),
-      ...resolveParams(message, db, bot, configs, command, FUNCTIONS[name].userParams, userArgs),
-      ...resolveParams(message, db, bot, configs, command, { userRecord: {} }, [message.author.id]),
+      ...resolveParams(message, db, bot, command, FUNCTIONS[name].setupParams, trickArgs),
+      ...resolveParams(message, db, bot, command, FUNCTIONS[name].userParams, userArgs),
+      ...resolveParams(message, db, bot, command, { userRecord: {} }, [message.author.id]),
     ];
 
     Promise.all(asyncParams).then(resolvedParams => {
       let params = {};
       resolvedParams.forEach(p => params[p.name] = p.value);
       let fn = FUNCTIONS[name].fn;
-      return fn(message, db, bot, configs, trickArgs, userArgs, params);
+      return fn(message, db, bot, trickArgs, userArgs, params);
     }).catch(e => {
       const embed = new Discord.RichEmbed().setColor(Utils.hexColors.red)
         .setTitle("Error").setDescription(e.message);
@@ -37,7 +37,7 @@ module.exports = {
   }
 };
 
-function resolveParams(message, db, bot, configs, command, functionParameters, passedArguments) {
+function resolveParams(message, db, bot, command, functionParameters, passedArguments) {
   let params = [];
   let argumentIndex = 0;
   Object.keys(functionParameters).forEach(paramName => {
@@ -55,7 +55,7 @@ function resolveParams(message, db, bot, configs, command, functionParameters, p
           return { name: paramName, value: functionParameters[paramName].default };
         } else if (functionParameters[paramName].default) {
           param = PARAMETERS[functionParameters[paramName].default];
-          return param(message, db, bot, configs, arg)
+          return param(message, db, bot, arg)
             .then(resultValue => {
               return { name: paramName, value: resultValue };
             })
@@ -67,7 +67,7 @@ function resolveParams(message, db, bot, configs, command, functionParameters, p
         }
       }));
     } else {
-      params.push(param(message, db, bot, configs, arg)
+      params.push(param(message, db, bot, arg)
         .then(resultValue => {
           return { name: paramName, value: resultValue };
         })
@@ -223,25 +223,25 @@ const FUNCTIONS = {
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CASTEGORIES.Trade,
-    help: "Shows total coins",
+    help: "Shows total rewards",
     setupParams: {},
     userParams: { userTag: { isOptional: true } }
   },
 };
 
 const PARAMETERS = {
-  userRecord: async function (message, db, bot, configs, arg) {
+  userRecord: async function (message, db, bot, arg) {
     if (!arg) arg = message.author.id;
     const col = db.collection("users");
     return await col.findOne({ userId: arg });
   },
-  channelId: async function (message, db, bot, configs, arg) {
+  channelId: async function (message, db, bot, arg) {
     return arg;
   },
-  trickName: async function (message, db, bot, configs, arg) {
+  trickName: async function (message, db, bot, arg) {
     return arg;
   },
-  pageNumber: async function (message, db, bot, configs, arg) {
+  pageNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value in pageNumber");
     }
@@ -251,13 +251,13 @@ const PARAMETERS = {
     }
     return pageNumber;
   },
-  inventoryItemNumber: async function (message, db, bot, configs, arg) {
+  inventoryItemNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value in inventoryItemNumber");
     }
     return parseInt(arg);
   },
-  shopItemNumber: async function (message, db, bot, configs, arg) {
+  shopItemNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value in shopItemNumber");
     }
@@ -271,17 +271,17 @@ const PARAMETERS = {
       return shop[itemNumber - 1];
     });
   },
-  userTag: async function (message, db, bot, configs, arg) {
+  userTag: async function (message, db, bot, arg) {
     var numberPattern = /\d+/g;
     const userNumber = arg.match(numberPattern);
     //const targetUser = bot.users.find("id", userNumber[0]);
     const usrCol = db.collection("users");
     return await usrCol.findOne({ userId: userNumber[0] });
   },
-  hexColor: async function (message, db, bot, configs, arg) {
+  hexColor: async function (message, db, bot, arg) {
     return arg;
   },
-  totalCost: async function (message, db, bot, configs, arg) {
+  totalCost: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value in totalCost");
     }

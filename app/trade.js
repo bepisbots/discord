@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
-  tradeShop: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  tradeShop: async function (message, db, bot, trickArgs, userArgs, params) {
     let pageNumber = params['pageNumber'] - 1;
     const col = db.collection("shop");
     await col.find().toArray(function (err, shop) {
@@ -19,14 +19,14 @@ module.exports = {
 
       let shopMessage = "";
       shop.forEach(i => {
-        shopMessage += configs.strings.shopListing
+        shopMessage += Utils.getString("shopListing")
           .replace("{id}", id)
           .replace("{itemName}", Utils.removeUrls(i.item))
           .replace("{userName}", i.username)
           .replace("{coins}", i.coins) + "\n";
         id++;
       });
-      const title = configs.strings.shopTitle + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
+      const title = Utils.getString("shopTitle") + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
       message.channel.send({
         embed: {
           color: Utils.hexColors.yellow,
@@ -36,10 +36,10 @@ module.exports = {
       });
     });
   },
-  tradeUnSell: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  tradeUnSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 2) {
-      message.channel.send(configs.strings.unSellError
+      message.channel.send(Utils.getString("unSellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -61,21 +61,21 @@ module.exports = {
 
     const shopCol = db.collection("shop");
     await shopCol.deleteOne({ userId: message.author.id, itemId: key });
-    message.channel.send(configs.strings.unSellSuccess
+    message.channel.send(Utils.getString("unSellSuccess")
       .replace("{itemName}", Utils.removeUrls(item.content))
       .replace("{userTag}", "<@" + message.author.id + ">"));
   },
-  tradeSell: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  tradeSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 3) {
-      message.channel.send(configs.strings.sellError
+      message.channel.send(Utils.getString("sellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
     const coins = parseInt(cmdArgs[2]);
     if (!coins || coins <= 0 || coins > 1000) {
-      message.channel.send(configs.strings.sellErrorCoins
+      message.channel.send(Utils.getString("sellErrorCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -106,16 +106,16 @@ module.exports = {
       item: item.content,
       coins: parseInt(coins)
     });
-    message.channel.send(configs.strings.sellSuccess
+    message.channel.send(Utils.getString("sellSuccess")
       .replace("{itemName}", Utils.removeUrls(item.content))
       .replace("{userTag}", "<@" + message.author.id + ">")
     );
   },
-  tradeBuy: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  tradeBuy: async function (message, db, bot, trickArgs, userArgs, params) {
     if (!userArgs || userArgs.length < 1) {
       const embed = new Discord.RichEmbed()
         .setColor(Utils.hexColors.red)
-        .setDescription(configs.strings.buyError
+        .setDescription(Utils.getString("buyError")
           .replace("{userTag}", "<@" + message.author.id + ">"));
       message.channel.send({ embed });
       return;
@@ -130,7 +130,7 @@ module.exports = {
     if (!parseInt(buyer.coins) || parseInt(shopItem.coins) > parseInt(buyer.coins)) {
       const embed = new Discord.RichEmbed()
         .setColor(Utils.hexColors.red)
-        .setDescription(configs.strings.buyNotEnoughCoins
+        .setDescription(Utils.getString("buyNotEnoughCoins")
           .replace("{userTag}", "<@" + message.author.id + ">"));
       message.channel.send({ embed });
       return;
@@ -168,16 +168,16 @@ module.exports = {
     // Update shop
     await shopCol.deleteOne(shopItem);
 
-    let buyMessage = configs.strings.buySuccess
+    let buyMessage = Utils.getString("buySuccess")
       .replace("{sellerTag}", "<@" + seller.userId + ">")
       .replace("{paidCoins}", shopItem.coins)
       .replace("{itemName}", Utils.removeUrls((shopItem.item)));
     buyMessage = Utils.replaceTemplates(buyMessage, message, null);
     message.channel.send(buyMessage);
   },
-  tradeGive: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  tradeGive: async function (message, db, bot, trickArgs, userArgs, params) {
     if (!userArgs || userArgs.length < 1) {
-      message.channel.send(configs.strings.giveAwayError
+      message.channel.send(Utils.getString("giveAwayError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -193,13 +193,13 @@ module.exports = {
     if (!item) return;
     // Make sure the item is not in the shop
     if (item.selling > 0) {
-      message.channel.send(configs.strings.giveAwayErrorShop
+      message.channel.send(Utils.getString("giveAwayErrorShop")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
 
     let greatestCoinsValue = 10; // Default value
-    configs.symbols.forEach(entry => {
+    Utils.getConfigs().symbols.forEach(entry => {
       if (item.content.indexOf(entry.symbol) >= 0 && greatestCoinsValue < entry.giveAwayValue) {
         greatestCoinsValue = parseInt(entry.giveAwayValue);
       }
@@ -216,14 +216,14 @@ module.exports = {
       user.coins += greatestCoinsValue;
     usrCol.save(user);
 
-    let textMessage = configs.strings.giveAwayMessage
+    let textMessage = Utils.getString("giveAwayMessage")
       .replace("{receivedCoins}", greatestCoinsValue)
       .replace("{totalCoins}", user.coins)
       .replace("{itemName}", Utils.removeUrls(item.content))
       .replace("{userTag}", "<@" + message.author.id + ">");
     message.channel.send(textMessage);
   },
-  showCoins: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  showCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord;
     let userId;
     userRecord = params['userTag'];
@@ -234,7 +234,7 @@ module.exports = {
     if (!userRecord) {
       return;
     }
-    message.channel.send(configs.strings.invShowTotalCoins
+    message.channel.send(Utils.getString("invShowTotalCoins")
       .replace("{coins}", userRecord.coins || 0)
       .replace("{userTag}", "<@" + userId + ">"));
   }

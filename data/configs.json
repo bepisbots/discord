@@ -1,0 +1,55 @@
+[
+    {
+        "type": "strings",
+        "value": {
+            "sellError": "**{userTag}**, please specify the item number from your inventory followed by the number of bepis you want to sell the item",
+            "shopTitle": "**SHOP**",
+            "buyError": "**{userTag}**, please specify a valid item number from the shop",
+            "buySuccess": "**{userTag}**, you have bought **{itemName}** from **{sellerTag}** for {paidCoins} bepis",
+            "buyNotEnoughCoins": "**{userTag}**, you don't have enough bepis to buy the item",
+            "shopListing": "{id}) **{itemName}** (Sold by **{userName}**): {coins} bepis",
+            "sellErrorCoins": "**{userTag}**, please enter a value greater than 0 for bepis",
+            "sellSuccess": "**{itemName}** is now for sale!",
+            "unSellError": "**{userTag}**, please specify the item number from your inventory.",
+            "unSellSuccess": "**{itemName}** is no longer for sale!",
+            "invTitle": "**{userTag}'s Inventory**",
+            "invItem": "{id}) {itemName}: {quantityOwned}",
+            "invShowTotalCoins": "**{userTag}**, has {coins} bepis in total",
+            "invItemForSale": "{id}) {itemName}: {quantityOwned} ({quantityForSale} for sale)",
+            "invColorError": "!invcolor @user #hex",
+            "invColorHexError": "Invalid HEX color",
+            "catchWaitMessage": "🚫 **{userTag}**, you need to wait another **{hours} hours, {minutes} minutes, and {seconds} seconds** before catching another Shibe",
+            "catchSuccessMessage": "**{userTag}**, you have caught a **{itemName}**. Congratulations!!",
+            "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
+            "giveAwayMessage": " \"**{userTag}**, you received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!\"",
+            "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop"
+        }
+    },
+    {
+        "type": "symbols",
+        "help": "Indicates the level of difficulty from 1-5 for items to be randomly chosen (5 is very difficult)",
+        "value": [
+            {
+                "symbol": "💫",
+                "scarcity": {
+                    "$numberInt": "5"
+                },
+                "giveAwayValue": "100"
+            },
+            {
+                "symbol": "🌟",
+                "scarcity": {
+                    "$numberInt": "4"
+                },
+                "giveAwayValue": "90"
+            },
+            {
+                "symbol": "⭐",
+                "scarcity": {
+                    "$numberInt": "3"
+                },
+                "giveAwayValue": "80"
+            }
+        ]
+    }
+]

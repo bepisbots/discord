@@ -2,13 +2,13 @@ const Functions = require('./Functions');
 const Utils = require('./utils');
 
 module.exports = {
-  randomPost: async function (message, db, bot, configs, trickArgs) {
+  randomPost: async function (message, db, bot, trickArgs) {
     const channelId = trickArgs[1];
-    Utils.getRandomMessage(db, channelId, configs, (chosenMessage) => {
+    Utils.getRandomMessage(db, channelId, (chosenMessage) => {
       message.channel.send(chosenMessage.content);
     });
   },
-  listTricks: async function (message, db, bot, configs, trickArgs, userArgs, params) {
+  listTricks: async function (message, db, bot, trickArgs, userArgs, params) {
     const pageNumber = params['pageNumber'];
     const col = db.collection("tricks");
     await col.find().toArray(function (err, allTricks) {
