@@ -217,7 +217,10 @@ const FUNCTIONS = {
     category: CASTEGORIES.Trade,
     help: Utils.getString("tradeGiveHelp"),
     setupParams: {},
-    userParams: { inventoryItemNumber: {} }
+    userParams: {
+      inventoryItemNumber: {},
+      userTag: { isOptional: true, default: null }
+    }
   },
   "SHOW_COINS": {
     fn: Trade.showCoins,
@@ -273,9 +276,19 @@ const PARAMETERS = {
   userTag: async function (message, db, bot, arg) {
     var numberPattern = /\d+/g;
     const userNumber = arg.match(numberPattern);
-    //const targetUser = bot.users.find("id", userNumber[0]);
+    const targetUser = bot.users.find("id", userNumber[0]);
     const usrCol = db.collection("users");
-    return await usrCol.findOne({ userId: userNumber[0] });
+    let userRecord = await usrCol.findOne({ userId: userNumber[0] });
+    if (userRecord === null) {
+      userRecord = {
+        userId: targetUser.id,
+        username: targetUser.username,
+        createdTimestamp: new Date(),
+        inventory: {},
+      };
+    }
+    return userRecord;
+    
   },
   hexColor: async function (message, db, bot, arg) {
     return arg;

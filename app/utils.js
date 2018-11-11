@@ -16,6 +16,7 @@ module.exports = {
   },
   getRandomMessage: async function (db, channelId, callback) {
     const col = db.collection("posts");
+    const that = this;
     col.countDocuments({ channel: channelId }, async function (err, totalMsgs) {
       let count = 0;
       let doc;
@@ -24,7 +25,7 @@ module.exports = {
         var randomMessage = Math.floor(Math.random() * totalMsgs);
         doc = await col.find({ channel: channelId }).limit(-1).skip(randomMessage).next();
         greatestScarcity = 0;
-        Utils.getConfigs().symbols.forEach(entry => {
+        that.getConfigs().symbols.forEach(entry => {
           let symbol = entry.symbol;
           let scarcity = entry.scarcity;
           if (doc.content.indexOf(symbol) >= 0 && greatestScarcity < scarcity) {

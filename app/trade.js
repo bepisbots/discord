@@ -181,6 +181,8 @@ module.exports = {
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
+    const userTag = params["userTag"];
+
     const itemNumber = userArgs[0] - 1;
     const usrCol = db.collection("users");
     let user = params['userRecord'];
@@ -210,17 +212,31 @@ module.exports = {
     } else {
       item.quantity--;
     }
-    if (!user.coins)
-      user.coins = greatestCoinsValue;
-    else
-      user.coins += greatestCoinsValue;
+    if (!userTag) {
+      if (!user.coins)
+        user.coins = greatestCoinsValue;
+      else
+        user.coins += greatestCoinsValue;
+    }
     usrCol.save(user);
 
-    let textMessage = Utils.getString("giveAwayMessage")
+    if (userTag) {
+      if (userTag.inventory[key]) {
+        userTag.inventory[key].quantity++;
+      } else {
+        userTag.inventory[key] = {
+          content: item.content,
+          quantity: 1
+        };
+      }
+      usrCol.save(userTag);
+    }
+    let textMessage = (userTag ? Utils.getString("donateMessage") : Utils.getString("giveAwayMessage"))
       .replace("{receivedCoins}", greatestCoinsValue)
       .replace("{totalCoins}", user.coins)
       .replace("{itemName}", Utils.removeUrls(item.content))
-      .replace("{userTag}", "<@" + message.author.id + ">");
+      .replace("{userTag}", "<@" + message.author.id + ">")
+      .replace("{userTagReceiver}", "<@" + userTag.userId + ">");
     message.channel.send(textMessage);
   },
   showCoins: async function (message, db, bot, trickArgs, userArgs, params) {
