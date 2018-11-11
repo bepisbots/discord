@@ -14,6 +14,20 @@ module.exports = {
   getString: function (stringId) {
     return this.getConfigs().strings[stringId];
   },
+  getInventoryItemFromNumber: function (userRecord, inventoryItemNumber) {
+    const key = this.getInventoryItemKeyFromNumber(userRecord, inventoryItemNumber);
+    const item = userRecord.inventory[key];
+    return item;
+  },
+  getInventoryItemKeyFromNumber: function (userRecord, inventoryItemNumber) {
+    const invKeys = Object.keys(userRecord.inventory);
+    if (inventoryItemNumber >= invKeys.length || inventoryItemNumber < 0)
+      throw new Error("Invalid item number");
+    const key = invKeys[inventoryItemNumber];
+    if (!key)
+      throw new Error("Invalid item number");
+    return key;
+  },
   getRandomMessage: async function (db, channelId, callback) {
     const col = db.collection("posts");
     const that = this;
@@ -36,6 +50,10 @@ module.exports = {
       callback(doc);
     });
   },
+  getItenName: function (item) {
+    const name = this.removeUrls(item.content);
+    return (item.nickname ? item.nickname + " *(" + name + ")*" : name);
+  },
   removeUrls: function (message) {
     if (!message) return "";
     return message.replace(/(?:https?):\/\/[\n\S]+/g, '').trim();
@@ -53,7 +71,7 @@ module.exports = {
   replaceTemplates: function (text, message, item) {
     if (!text) return;
     return text
-      .replace("{itemName}", (item ? this.removeUrls(item.content) : ""))
+      .replace("{itemName}", (item ? this.getItenName(item) : ""))
       .replace("{userTag}", (message ? "<@" + message.author.id + ">" : ""));
   },
   hexColors: {

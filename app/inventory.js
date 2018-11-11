@@ -5,16 +5,10 @@ const PAGE_SIZE = 12;
 module.exports = {
   invTrash: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
-    const itemNumber = cmdArgs[1] - 1;
     let userRecord = params['userRecord'];
+    let itemNumber = params['inventoryItemNumber'] - 1;
+    const item = Utils.getInventoryItemFromNumber(userRecord, itemNumber);
 
-    if (!userRecord || !userRecord.inventory) return;
-    const invKeys = Object.keys(userRecord.inventory);
-    if (invKeys.length < itemNumber || itemNumber < 0) return;
-    const key = invKeys[itemNumber];
-    if (!key) return;
-    const item = userRecord.inventory[key];
-    if (!item) return;
     if (item.quantity <= 1) {
       delete userRecord.inventory[key];
     } else {
@@ -23,7 +17,7 @@ module.exports = {
     const userCol = db.collection("users");
     userCol.save(userRecord);
 
-    message.channel.send(Utils.removeUrls(item.content) + " has been removed from your inventory!");
+    message.channel.send(Utils.getItenName(item) + " has been removed from your inventory!");
   },
   invList: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
@@ -42,8 +36,8 @@ module.exports = {
     const text = inventory.filter(i => i.content)
       .map(i => (!i.selling ? Utils.getString("invItem") : Utils.getString("invItemForSale"))
         .replace("{id}", count++)
-        .replace("{itemName}", Utils.removeUrls(i.content))
-        .replace("{quantityOwned}", i.quantity)
+        .replace("{itemName}", Utils.getItenName(i))
+        .replace("{quantityOwned}", (i.quantity > 1 ? ": " + i.quantity: ""))
         .replace("{quantityForSale}", i.selling)
         .replace("{userTag}", "<@" + userRecord.userId + ">"))
       .reduce((i1, i2) => i1 + "\n" + i2);
@@ -65,23 +59,15 @@ module.exports = {
   },
   invShow: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
-    const itemNumber = (userArgs[0] ? parseInt(userArgs[0]) : 0);
-    if (itemNumber <= 0) {
-      return;
-    }
-    // Show all inventory
-    const col = db.collection("users");
     let userRecord = params['userRecord'];
-    if (!userRecord || !userRecord.inventory) return;
-    // Show single item in inventory
-    const invEntry = Object.values(userRecord.inventory)[itemNumber - 1];
-    if (invEntry) {
-      const embed = new Discord.RichEmbed()
-        .setColor(Utils.hexColors.red)
-        .setTitle(Utils.removeUrls(invEntry.content))
-        .setImage(Utils.getUrl(invEntry.content));
-      message.channel.send({ embed });
-    }
+    let itemNumber = params['inventoryItemNumber'] - 1;
+    const item = Utils.getInventoryItemFromNumber(userRecord, itemNumber);
+    // Show all inventory
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.red)
+      .setTitle(Utils.getItenName(item))
+      .setImage(Utils.getUrl(item.content));
+    message.channel.send({ embed });
   },
   invColor: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
@@ -181,12 +167,52 @@ module.exports = {
 
       const text = Utils.getString("catchSuccessMessage")
         .replace("{userTag}", "<@" + message.author.id + ">")
-        .replace("{itemName}", Utils.removeUrls(catched.content))
+        .replace("{itemName}", Utils.getItenName(catched))
       const embed = new Discord.RichEmbed()
         .setColor(Utils.hexColors.greyDiscord)
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
       message.channel.send({ embed });
     });
-  }
+  },
+  invNick: async function (message, db, bot, trickArgs, userArgs, params) {
+    // Get user entry
+    let userRecord = params['userRecord'];
+    let inventoryItemNumber = params['inventoryItemNumber'] - 1;
+    let nickname = params['nickname'];
+
+    const item = Utils.getInventoryItemFromNumber(userRecord, inventoryItemNumber);
+    item.nickname = nickname;
+
+    const col = db.collection("users");
+    col.save(userRecord);
+
+    const text = Utils.getString("invNickSuccess")
+      .replace("{nick}", nickname)
+      .replace("{itemName}", Utils.getItenName(item))
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.blueSky)
+      .setDescription(text);
+    message.channel.send({ embed });
+  },
+  invClearNick: async function (message, db, bot, trickArgs, userArgs, params) {
+    // Get user entry
+    let userRecord = params['userRecord'];
+    let inventoryItemNumber = params['inventoryItemNumber'] - 1;
+
+    const item = Utils.getInventoryItemFromNumber(userRecord, inventoryItemNumber);
+    item.nickname = "";
+
+    const col = db.collection("users");
+    col.save(userRecord);
+
+    const text = Utils.getString("invClearNickSuccess")
+      .replace("{itemName}", Utils.getItenName(item))
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.blueSky)
+      .setDescription(text);
+    message.channel.send({ embed });
+  },
 };
+
+

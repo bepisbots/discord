@@ -62,7 +62,7 @@ module.exports = {
     const shopCol = db.collection("shop");
     await shopCol.deleteOne({ userId: message.author.id, itemId: key });
     message.channel.send(Utils.getString("unSellSuccess")
-      .replace("{itemName}", Utils.removeUrls(item.content))
+      .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">"));
   },
   tradeSell: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -107,7 +107,7 @@ module.exports = {
       coins: parseInt(coins)
     });
     message.channel.send(Utils.getString("sellSuccess")
-      .replace("{itemName}", Utils.removeUrls(item.content))
+      .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
     );
   },
@@ -176,23 +176,11 @@ module.exports = {
     message.channel.send(buyMessage);
   },
   tradeGive: async function (message, db, bot, trickArgs, userArgs, params) {
-    if (!userArgs || userArgs.length < 1) {
-      message.channel.send(Utils.getString("giveAwayError")
-        .replace("{userTag}", "<@" + message.author.id + ">"));
-      return;
-    }
-    const userTag = params["userTag"];
-
-    const itemNumber = userArgs[0] - 1;
-    const usrCol = db.collection("users");
     let user = params['userRecord'];
-    if (!user) return;
-    const invKeys = Object.keys(user.inventory);
-    if (invKeys.length < itemNumber || itemNumber < 0) return;
-    const key = invKeys[itemNumber];
-    if (!key) return;
-    const item = user.inventory[key];
-    if (!item) return;
+    const targetUser = params["userTag"];
+    let itemNumber = params['inventoryItemNumber'] - 1;
+    const item = Utils.getInventoryItemFromNumber(userRecord, itemNumber);
+
     // Make sure the item is not in the shop
     if (item.selling > 0) {
       message.channel.send(Utils.getString("giveAwayErrorShop")
@@ -212,32 +200,93 @@ module.exports = {
     } else {
       item.quantity--;
     }
-    if (!userTag) {
+    if (!targetUser) {
       if (!user.coins)
         user.coins = greatestCoinsValue;
       else
         user.coins += greatestCoinsValue;
     }
+
+    const usrCol = db.collection("users");
     usrCol.save(user);
 
-    if (userTag) {
-      if (userTag.inventory[key]) {
-        userTag.inventory[key].quantity++;
+    if (targetUser) {
+      if (targetUser.inventory[key]) {
+        targetUser.inventory[key].quantity++;
       } else {
-        userTag.inventory[key] = {
+        targetUser.inventory[key] = {
           content: item.content,
           quantity: 1
         };
       }
-      usrCol.save(userTag);
+      usrCol.save(targetUser);
     }
-    let textMessage = (userTag ? Utils.getString("donateMessage") : Utils.getString("giveAwayMessage"))
+    let textMessage = (targetUser ? Utils.getString("donateMessage") : Utils.getString("giveAwayMessage"))
       .replace("{receivedCoins}", greatestCoinsValue)
       .replace("{totalCoins}", user.coins)
-      .replace("{itemName}", Utils.removeUrls(item.content))
+      .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{userTagReceiver}", "<@" + userTag.userId + ">");
     message.channel.send(textMessage);
+  },
+  trade: async function (message, db, bot, trickArgs, userArgs, params) {
+    const userRecord = params['userRecord'];
+    const targetUser = params["userTag"];
+    const itemNumber = params['inventoryItemNumber'] - 1;
+    const itemKey = Utils.getInventoryItemKeyFromNumber(userRecord, itemNumber);
+    const item = userRecord.inventory[itemKey];
+    const that = this;
+
+    // Make sure the item is not in the shop
+    if (item.selling > 0) {
+      message.channel.send(Utils.getString("tradeErrorShop")
+        .replace("{userTag}", "<@" + userRecord.userId + ">"));
+      return;
+    }
+
+    // Check if there's a pending trade
+    const tradeIdx = targetUser.userId + "-" + userRecord.userId;
+    if (this.pendingTrades && this.pendingTrades[tradeIdx]) {
+      // Execute trade
+      const tradeItem = that.pendingTrades[tradeIdx];
+      delete that.pendingTrades[tradeIdx];
+      transferItem(db, targetUser, userRecord, tradeItem.key, tradeItem.item);
+      transferItem(db, userRecord, targetUser, itemKey, item);
+
+      //"tradeMessageSuccess": "**{userTagReceiver}**, now has '{itemName1}'\n**{userTag}** now has '{itemName2}'",
+      let textMessage = Utils.getString("tradeMessageSuccess")
+        .replace("{itemName1}", Utils.removeUrls(tradeItem.item.content))
+        .replace("{itemName2}", Utils.removeUrls(item.content))
+        .replace("{userTag}", "<@" + targetUser.userId + ">")
+        .replace("{userTagReceiver}", "<@" + userRecord.userId + ">");
+      message.channel.send(textMessage);
+    }
+
+    let textMessage = Utils.getString("tradeMessage")
+      .replace("{itemName}", Utils.removeUrls(item.content))
+      .replace("{userTag}", "<@" + userRecord.userId + ">")
+      .replace("{userTagReceiver}", "<@" + targetUser.userId + ">");
+
+    const acceptedTrade = function () {
+      if (!that.pendingTrades) that.pendingTrades = {};
+      const tradeIdx = userRecord.userId + "-" + targetUser.userId;
+      that.pendingTrades[tradeIdx] = { key: itemKey, item: item };
+      message.channel.send(Utils.getString("tradeMessageAccepted")
+        .replace("{itemName}", Utils.removeUrls(item.content))
+        .replace("{userTag}", "<@" + userRecord.userId + ">")
+        .replace("{userTagReceiver}", "<@" + targetUser.userId + ">"));
+    }
+
+    const msg = await message.channel.send(textMessage);
+
+    const reactionFilter = function (reaction, user) {
+      return user.id === targetUser.userId &&
+        reaction.emoji.name === '🆗';
+    }
+
+    msg.awaitReactions(reactionFilter,
+      { max: 1, time: 60 * 1000 * 5, errors: ['time'] })
+      .then(collected => acceptedTrade());
   },
   showCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord;
@@ -255,3 +304,24 @@ module.exports = {
       .replace("{userTag}", "<@" + userId + ">"));
   }
 };
+
+const transferItem = function (db, sourceUser, targetUser, itemKey, item) {
+  if (item.quantity <= 1) {
+    delete sourceUser.inventory[itemKey];
+  } else {
+    item.quantity--;
+  }
+  const usrCol = db.collection("users");
+  usrCol.save(sourceUser);
+
+  if (targetUser.inventory[itemKey]) {
+    targetUser.inventory[itemKey].quantity++;
+  } else {
+    targetUser.inventory[itemKey] = {
+      content: item.content,
+      quantity: 1
+    };
+  }
+  usrCol.save(targetUser);
+}
+

@@ -48,7 +48,17 @@ function resolveParams(message, db, bot, command, functionParameters, passedArgu
       }));
       return;
     }
-    const arg = passedArguments[argumentIndex];
+
+    let currentArg = passedArguments[argumentIndex];
+    let arg = currentArg;
+    if (functionParameters[paramName].multipleWords) {
+      do {
+        argumentIndex++;
+        currentArg = passedArguments[argumentIndex];
+        if (currentArg) arg += " " + currentArg;
+      } while (currentArg);
+    }
+
     if (!arg) {
       params.push(Promise.resolve().then(() => {
         if (functionParameters[paramName].isOptional) {
@@ -184,6 +194,20 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
+  "ASSIGN_NICKNAME": {
+    fn: Inventory.invNick,
+    category: CASTEGORIES.Inventory,
+    help: Utils.getString("invNickHelp"),
+    setupParams: {},
+    userParams: { inventoryItemNumber: {}, nickname: { multipleWords: true } },
+  },
+  "RESET_NICKNAME": {
+    fn: Inventory.invClearNick,
+    category: CASTEGORIES.Inventory,
+    help: Utils.getString("invClearNickHelp"),
+    setupParams: {},
+    userParams: { inventoryItemNumber: {} },
+  },
   "SELL_INVENTORY": {
     fn: Trade.tradeSell,
     category: CASTEGORIES.Trade,
@@ -212,6 +236,15 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { shopItemNumber: {} }
   },
+  "TRADE_INVENTORY": {
+    fn: Trade.trade,
+    category: CASTEGORIES.Trade,
+    help: Utils.getString("tradeHelp"),
+    setupParams: {},
+    userParams: {
+      userTag: {}, inventoryItemNumber: {},
+    }
+  },
   "GIVE_AWAY_INVENTORY": {
     fn: Trade.tradeGive,
     category: CASTEGORIES.Trade,
@@ -232,6 +265,13 @@ const FUNCTIONS = {
 };
 
 const PARAMETERS = {
+  nickname: async function (message, db, bot, arg) {
+    var regex = /^.{2,50}$/;
+    if (!regex.test(arg)) {
+      throw new Error("Invalid name!");
+    }
+    return arg;
+  },
   userRecord: async function (message, db, bot, arg) {
     if (!arg) arg = message.author.id;
     const col = db.collection("users");
@@ -241,7 +281,11 @@ const PARAMETERS = {
     return arg;
   },
   trickName: async function (message, db, bot, arg) {
-    return arg;
+    var regex = /^\S{2,50}$/;
+    if (!regex.test(arg)) {
+      throw new Error("Invalid name!");
+    }
+    return arg.toLowerCase();
   },
   pageNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
@@ -257,7 +301,11 @@ const PARAMETERS = {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value in inventoryItemNumber");
     }
-    return parseInt(arg);
+    let itemNumber = parseInt(arg);
+    if (itemNumber < 1) {
+      throw new Error("Enter a value greather than 0 for inventoryItemNumber");
+    }
+    return itemNumber;
   },
   shopItemNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
@@ -288,7 +336,7 @@ const PARAMETERS = {
       };
     }
     return userRecord;
-    
+
   },
   hexColor: async function (message, db, bot, arg) {
     return arg;
