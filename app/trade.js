@@ -179,7 +179,8 @@ module.exports = {
     let user = params['userRecord'];
     const targetUser = params["userTag"];
     let itemNumber = params['inventoryItemNumber'] - 1;
-    const item = Utils.getInventoryItemFromNumber(userRecord, itemNumber);
+    const key = Utils.getInventoryItemKeyFromNumber(user, itemNumber);
+    const item = user.inventory[key];
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
@@ -226,7 +227,7 @@ module.exports = {
       .replace("{totalCoins}", user.coins)
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
-      .replace("{userTagReceiver}", "<@" + userTag.userId + ">");
+      .replace("{userTagReceiver}", "<@" + (targetUser ? targetUser.userId : "") + ">");
     message.channel.send(textMessage);
   },
   trade: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -253,13 +254,13 @@ module.exports = {
       transferItem(db, targetUser, userRecord, tradeItem.key, tradeItem.item);
       transferItem(db, userRecord, targetUser, itemKey, item);
 
-      //"tradeMessageSuccess": "**{userTagReceiver}**, now has '{itemName1}'\n**{userTag}** now has '{itemName2}'",
       let textMessage = Utils.getString("tradeMessageSuccess")
         .replace("{itemName1}", Utils.removeUrls(tradeItem.item.content))
         .replace("{itemName2}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + targetUser.userId + ">")
         .replace("{userTagReceiver}", "<@" + userRecord.userId + ">");
       message.channel.send(textMessage);
+      return;
     }
 
     let textMessage = Utils.getString("tradeMessage")

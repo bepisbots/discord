@@ -44,7 +44,7 @@ module.exports = {
     if (userArgs && userArgs.length >= 2) {
       const ch = userArgs[1];
       const message0 = "Processing Channel Id: " + ch;
-      console.log(Date() + ": " + message0);
+      Utils.log(message, message0);
       processChannel(db, bot, message, ch);
       return;
     }
@@ -63,7 +63,7 @@ module.exports = {
 
       channelIds.forEach(ch => {
         const text = "Processing Channel Id: " + ch;
-        console.log(Date() + ": " + text);
+        Utils.log(message, text);
         if (message) {
           message.channel.send(text);
         }
@@ -80,7 +80,7 @@ async function processChannel(db, bot, message, channelId) {
   let counter = 0;
   if (!channel) {
     const text = "Channel does not exist on this Server. Change server and run command again:" + channelId;
-    console.log(Date() + ": " + text);
+    Utils.log(message, text);
     if (message) {
       message.channel.send(text);
     }
@@ -116,5 +116,5 @@ async function processChannel(db, bot, message, channelId) {
     lastMessageIdProcessed = lastMessageId;
   } while (true);
   const message1 = "Processed " + counter + " new messages for channel" + channelId;
-  console.log(Date() + ": " + message1);
+  Utils.log(message, message1);
 }

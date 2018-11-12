@@ -4,6 +4,7 @@ const MongoClient = require('mongodb').MongoClient;
 const Admin = require('./app/admin');
 const Functions = require('./app/functions');
 const Entities = require('html-entities').AllHtmlEntities;
+const Utils = require('./app/utils');
 
 const entities = new Entities();
 let lastTimeChannelsScanned = Date.now();
@@ -24,11 +25,11 @@ const getDb = function (callback) {
                 if (err) throw err;
                 _db = database.db("bepisdb");
                 setTimeout(() => {
-                    console.log(Date() + ": DB connection closed");
+                    Utils.log(null, "DB connection closed");
                     database.close();
                     _db = null;
                 }, 1000 * 60 * 10);
-                console.log(Date() + ": DB connection opened");
+                Utils.log(null, "DB connection opened");
                 callback(_db);
             });
     }
@@ -38,7 +39,7 @@ let firstTime = true;
 let bot;
 const main = function () {
     if (firstTime)
-        console.log(Date() + ": Bot Initiated");
+        Utils.log(null, "Bot Initiated");
     if (bot) {
         bot.destroy();
     }
@@ -51,14 +52,14 @@ const main = function () {
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
         if (firstTime) {
-            console.log(Date() + ": " + `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
+            Utils.log(null,  `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
             firstTime = false;
         }
     });
 
     bot.on("guildCreate", guild => {
         try {
-            console.log(Date() + ": " + `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
+            Utils.log(null,  `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
         } catch (e) {
             console.warn(e);
         }
@@ -70,7 +71,7 @@ const main = function () {
             return; //Optionally handle direct messages
         }
         if (message.content.indexOf(config.prefix) === 0) { // Message starts with your prefix
-            console.log(Date() + ": " + message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
+            Utils.log(message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
                 .slice(config.prefix.length)
                 .replaceAll("\n", " ")

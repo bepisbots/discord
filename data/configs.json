@@ -11,36 +11,36 @@
             "shopTitle": "**SHOP**",
             "buyError": "**{userTag}**, please specify a valid item number from the shop",
             "buySuccess": "**{userTag}**, you have bought **{itemName}** from **{sellerTag}** for {paidCoins} bepis",
-            "buyNotEnoughCoins": "**{userTag}**, you don't have enough bepis to buy the item",
+            "buyNotEnoughCoins": "**{userTag}**, you don't have enough bepis to buy that item",
             "shopListing": "{id}) **{itemName}** (Sold by **{userName}**): {coins} bepis",
-            "sellErrorCoins": "**{userTag}**, please enter a value greater than 0 for bepis",
+            "sellErrorCoins": "**{userTag}**, please enter a value greater than 0",
             "sellSuccess": "**{itemName}** is now for sale!",
             "unSellError": "**{userTag}**, please specify the item number from your inventory.",
             "unSellSuccess": "**{itemName}** is no longer for sale!",
             "invTitle": "**{userTag}'s Inventory**",
             "invItem": "{id}) {itemName} {quantityOwned}",
-            "invShowTotalCoins": "**{userTag}**, has {coins} bepis in total",
+            "invShowTotalCoins": "**{userTag}**, has {coins} bepis :bepis:",
             "invItemForSale": "{id}) {itemName} {quantityOwned} ({quantityForSale} for sale)",
             "invColorError": "!invcolor @user #hex",
             "invColorHexError": "Invalid HEX color",
             "catchWaitMessage": "🚫 **{userTag}**, you need to wait another **{hours} hours, {minutes} minutes, and {seconds} seconds** before catching another Shibe",
-            "catchSuccessMessage": "**{userTag}**, you have caught a **{itemName}**. Congratulations!!",
+            "catchSuccessMessage": "Congrats **{userTag}**, you've caught a(n) **{itemName}**!",
             "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
-            "giveAwayMessage": "**{userTag}**, you received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!",
+            "giveAwayMessage": "**{userTag}**, you've received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!",
             "donateMessage": "**{userTag}** donated **{itemName}** to **{userTagReceiver}**",
             "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop",
             "tradeErrorShop": "**{userTag}**, you can't trade items that are currently for sale in the shop",
-            "nonFunctionHelp": "Bot memories",
+            "nonFunctionHelp": "More Commands",
             "invColorHelp": "Changes color of inventory",
             "scanChannels": "Scans channel for new messages",
-            "newTrick": "Teaches new keyword to execute a function",
-            "forgetTrickHelp": "Removes keyword",
-            "listTricksHelp": "Lists help for all keywords",
+            "newTrick": "Teaches the bot a new command that uses a keyword to execute a function",
+            "forgetTrickHelp": "Removes a command",
+            "listTricksHelp": "Lists help for all commands",
             "randomPostHelp": "Shows a random message from '{channelId}'",
-            "invCatchHelp": "Catches item into inventory from {channelId}",
-            "invListHelp": "Shows all inventory",
+            "invCatchHelp": "Catches a shibe from {channelId}",
+            "invListHelp": "Shows your inventory",
             "invShowHelp": "Shows an item from the inventory",
-            "invTrashHelp": "Removes an item from the inventory",
+            "invTrashHelp": "Removes an item from your inventory",
             "invNickHelp": "Assigns nickname to inventory item",
             "invClearNickHelp": "Resets nickname to inventory item",
             "tradeHelp": "Trades an item with other person",
@@ -48,8 +48,8 @@
             "tradeUnSellHelp": "Stops selling an item from the inventory",
             "tradeShopHelp": "Shows what's in the shop",
             "tradeBuyHelp": "Buys an item from the shop",
-            "tradeGiveHelp": "Releases an item from your inventory in exchanage for a reward",
-            "showCoinsHelp": "Shows total rewards"
+            "tradeGiveHelp": "Releases an item from your inventory in exchanage for bepis",
+            "showCoinsHelp": "Shows total bepis"
         }
     },
     {
@@ -61,21 +61,21 @@
                 "scarcity": {
                     "$numberInt": "5"
                 },
-                "giveAwayValue": "100"
+                "giveAwayValue": "7000"
             },
             {
                 "symbol": "🌟",
                 "scarcity": {
                     "$numberInt": "4"
                 },
-                "giveAwayValue": "90"
+                "giveAwayValue": "2000"
             },
             {
                 "symbol": "⭐",
                 "scarcity": {
                     "$numberInt": "3"
                 },
-                "giveAwayValue": "80"
+                "giveAwayValue": "500"
             }
         ]
     }

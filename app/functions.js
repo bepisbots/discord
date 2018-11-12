@@ -29,6 +29,7 @@ module.exports = {
       let fn = FUNCTIONS[name].fn;
       return fn(message, db, bot, trickArgs, userArgs, params);
     }).catch(e => {
+      console.warn(e);
       const embed = new Discord.RichEmbed().setColor(Utils.hexColors.red)
         .setTitle("Error").setDescription(e.message);
       message.channel.send({ embed });

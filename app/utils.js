@@ -1,4 +1,5 @@
 const DataConfigs = require('../data/configs.json');
+const dateformat = require('dateformat');
 
 module.exports = {
   getConfigs: function () {
@@ -13,6 +14,19 @@ module.exports = {
   },
   getString: function (stringId) {
     return this.getConfigs().strings[stringId];
+  },
+  log: function (message, text) {
+    try {
+      const channelName = message ? message.channel.name : "";
+      const date = dateformat(new Date(), "dd/mm/yy, hh:MM:ss TT");
+      const messagetext = (text ? text : (message ? message.content : ""));
+      const authorTag = message ? message.author.tag : "";
+      const infoText = message ? ": " + authorTag + " on " + channelName + ", " : "";
+
+      console.log(date + ": " + infoText + "[" + messagetext + "]");
+    } catch (e) {
+      console.error(e);
+    }
   },
   getInventoryItemFromNumber: function (userRecord, inventoryItemNumber) {
     const key = this.getInventoryItemKeyFromNumber(userRecord, inventoryItemNumber);
