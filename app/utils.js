@@ -77,7 +77,7 @@ module.exports = {
     return message.match(/(?:https?):\/\/[\n\S]+/g)[0].trim();
   },
   isAdmin: function (message) {
-    if (message.author.id === '500743672799690752') return true;
+    //if (message.author.id === '500743672799690752') return true;
     let perms = message.member.permissions;
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;
