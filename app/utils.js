@@ -1,6 +1,7 @@
+const optionalRequire = require("optional-require")(require);
 const DataConfigs = require('../data/configs.json');
 const dateformat = require('dateformat');
-const config = require('../config.json');
+const config = optionalRequire('../config.json') || {};
 
 module.exports = {
   getConfigs: function () {
