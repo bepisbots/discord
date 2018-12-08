@@ -1,4 +1,4 @@
-const Functions = require('./functions');
+const functions = require('./functions');
 const Utils = require('./utils');
 
 module.exports = {
@@ -15,8 +15,8 @@ module.exports = {
       if (err) return;
       if (!allTricks) return;
 
-      const fns = Functions.getFunctions();
-      const cats = Functions.getCategories();
+      const fns = functions.getFunctions();
+      const cats = functions.getCategories();
       const isAdmin = Utils.isAdmin(message);
 
       // Categorize all tricks by function
