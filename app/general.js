@@ -1,4 +1,4 @@
-const Functions = require('./Functions');
+const Functions = require('./functions');
 const Utils = require('./utils');
 
 module.exports = {
