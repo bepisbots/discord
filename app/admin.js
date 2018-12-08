@@ -1,5 +1,4 @@
 const Entities = require('html-entities').AllHtmlEntities;
-const config = require('../config.json');
 const entities = new Entities();
 
 module.exports = {

@@ -1,4 +1,3 @@
-const config = require('./config.json');
 const Discord = require('discord.js');
 const MongoClient = require('mongodb').MongoClient;
 const Admin = require('./app/admin');
@@ -20,7 +19,7 @@ const getDb = function (callback) {
     if (_db != null) {
         callback(_db);
     } else {
-        MongoClient.connect(config.database.connectionString,
+        MongoClient.connect(Utils.getConfig('databaseConnectionString'),
             { useNewUrlParser: true }, function (err, database) {
                 if (err) throw err;
                 _db = database.db("bepisdb");
@@ -47,7 +46,7 @@ const main = function () {
         disableEveryone: true,
         disabledEvents: ['TYPING_START']
     });
-    bot.login(config.token);
+    bot.login(Utils.getConfig('token'));
 
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
@@ -70,10 +69,10 @@ const main = function () {
         if (message.channel.type === 'dm') { // Direct Message
             return; //Optionally handle direct messages
         }
-        if (message.content.indexOf(config.prefix) === 0) { // Message starts with your prefix
+        if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
             Utils.log(message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
-                .slice(config.prefix.length)
+                .slice(Utils.getConfig('prefix').length)
                 .replaceAll("\n", " ")
                 .replaceAll("\t", " ")
                 .replaceAll("  ", " ");

@@ -1,5 +1,6 @@
 const DataConfigs = require('../data/configs.json');
 const dateformat = require('dateformat');
+const config = require('../config.json');
 
 module.exports = {
   getConfigs: function () {
@@ -14,6 +15,15 @@ module.exports = {
   },
   getString: function (stringId) {
     return this.getConfigs().strings[stringId];
+  },
+  getConfig: function(name) {
+    if (config && config[name]){
+      return config[name];
+    } else if (process && process.env && process.env[name]){
+      return process.env[name];
+    } else {
+        console.error('No ' + name + ' configured');
+    }
   },
   log: function (message, text) {
     try {
