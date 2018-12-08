@@ -1,4 +1,4 @@
-const functions = require('./functions');
+const Functions = require('./functions');
 const Utils = require('./utils');
 
 module.exports = {
@@ -8,15 +8,13 @@ module.exports = {
       message.channel.send(chosenMessage.content);
     });
   },
-  listTricks: async function (message, db, bot, trickArgs, userArgs, params) {
+  listTricks: async function (message, db, bot, trickArgs, userArgs, params, fns, cats) {
     const pageNumber = params['pageNumber'];
     const col = db.collection("tricks");
     await col.find().toArray(function (err, allTricks) {
       if (err) return;
       if (!allTricks) return;
 
-      const fns = functions.getFunctions();
-      const cats = functions.getCategories();
       const isAdmin = Utils.isAdmin(message);
 
       // Categorize all tricks by function

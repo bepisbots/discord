@@ -6,8 +6,6 @@ const General = require('./general');
 const Discord = require('discord.js');
 
 module.exports = {
-  getFunctions: function () { return FUNCTIONS; },
-  getCategories: function () { return CASTEGORIES; },
   exists: function (name) {
     return (Object.keys(FUNCTIONS).find(f => f === name));
   },
@@ -27,7 +25,7 @@ module.exports = {
       let params = {};
       resolvedParams.forEach(p => params[p.name] = p.value);
       let fn = FUNCTIONS[name].fn;
-      return fn(message, db, bot, trickArgs, userArgs, params);
+      return fn(message, db, bot, trickArgs, userArgs, params, FUNCTIONS, CATEGORIES);
     }).catch(e => {
       console.warn(e);
       const embed = new Discord.RichEmbed().setColor(Utils.hexColors.red)
@@ -103,7 +101,7 @@ function getCommandHelpFormat(command, functionParameters) {
   return msg;
 }
 
-const CASTEGORIES = {
+const CATEGORIES = {
   Inventory: "Inventory",
   Trade: "Trade",
   Admin: "Admin",
@@ -113,14 +111,14 @@ const CASTEGORIES = {
 // All functions take same arguments
 const FUNCTIONS = {
   "NON_FUNCTION": {
-    category: CASTEGORIES.General,
+    category: CATEGORIES.General,
     help: Utils.getString("nonFunctionHelp"),
     setupParams: {},
     userParams: {}
   },
   "CHANGE_COLOR_INVENTORY": {
     onlyAdmin: true,
-    category: CASTEGORIES.Admin,
+    category: CATEGORIES.Admin,
     fn: Inventory.invColor,
     help: Utils.getString("invColorHelp"),
     setupParams: {},
@@ -129,7 +127,7 @@ const FUNCTIONS = {
   "SCAN_CHANNELS": {
     onlyAdmin: true,
     fn: Admin.scanChannels,
-    category: CASTEGORIES.Admin,
+    category: CATEGORIES.Admin,
     help: Utils.getString("scanChannels"),
     setupParams: {},
     userParams: { channelId: { isOptional: true } }
@@ -137,7 +135,7 @@ const FUNCTIONS = {
   "NEW_TRICK": {
     onlyAdmin: true,
     fn: Admin.newTrick,
-    category: CASTEGORIES.Admin,
+    category: CATEGORIES.Admin,
     help: Utils.getString("newTrick"),
     setupParams: {},
     userParams: {}
@@ -145,35 +143,35 @@ const FUNCTIONS = {
   "FORGET_TRICK": {
     onlyAdmin: true,
     fn: Admin.forgetTrick,
-    category: CASTEGORIES.Admin,
+    category: CATEGORIES.Admin,
     help: Utils.getString("forgetTrickHelp"),
     setupParams: {},
     userParams: { trickName: {} }
   },
   "LIST_TRICKS": {
     fn: General.listTricks,
-    category: CASTEGORIES.General,
+    category: CATEGORIES.General,
     help: Utils.getString("listTricksHelp"),
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "RANDOM_POST": {
     fn: General.randomPost,
-    category: CASTEGORIES.General,
+    category: CATEGORIES.General,
     help: Utils.getString("randomPostHelp"),
     setupParams: { channelId: {} },
     userParams: {}
   },
   "CATCH_INVENTORY": {
     fn: Inventory.invCatch,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invCatchHelp"),
     setupParams: { channelId: {} },
     userParams: {}
   },
   "LIST_INVENTORY": {
     fn: Inventory.invList,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invListHelp"),
     setupParams: {},
     userParams: {
@@ -183,63 +181,63 @@ const FUNCTIONS = {
   },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invShowHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "TRASH_INVENTORY": {
     fn: Inventory.invTrash,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invTrashHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "ASSIGN_NICKNAME": {
     fn: Inventory.invNick,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invNickHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {}, nickname: { multipleWords: true } },
   },
   "RESET_NICKNAME": {
     fn: Inventory.invClearNick,
-    category: CASTEGORIES.Inventory,
+    category: CATEGORIES.Inventory,
     help: Utils.getString("invClearNickHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SELL_INVENTORY": {
     fn: Trade.tradeSell,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeSellHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {}, totalCost: {} },
   },
   "UNSELL_INVENTORY": {
     fn: Trade.tradeUnSell,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeUnSellHelp"),
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
   "SHOP_INVENTORY": {
     fn: Trade.tradeShop,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeShopHelp"),
     setupParams: {},
     userParams: { pageNumber: { isOptional: true, default: 1 } }
   },
   "BUY_INVENTORY": {
     fn: Trade.tradeBuy,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeBuyHelp"),
     setupParams: {},
     userParams: { shopItemNumber: {} }
   },
   "TRADE_INVENTORY": {
     fn: Trade.trade,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeHelp"),
     setupParams: {},
     userParams: {
@@ -248,7 +246,7 @@ const FUNCTIONS = {
   },
   "GIVE_AWAY_INVENTORY": {
     fn: Trade.tradeGive,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("tradeGiveHelp"),
     setupParams: {},
     userParams: {
@@ -258,7 +256,7 @@ const FUNCTIONS = {
   },
   "SHOW_COINS": {
     fn: Trade.showCoins,
-    category: CASTEGORIES.Trade,
+    category: CATEGORIES.Trade,
     help: Utils.getString("showCoinsHelp"),
     setupParams: {},
     userParams: { userTag: { isOptional: true } }
