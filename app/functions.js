@@ -16,9 +16,9 @@ module.exports = {
     }
     // Validate and resolve function parameters
     let asyncParams = [
-      ...resolveParams(message, db, bot, command, FUNCTIONS[name].setupParams, trickArgs),
-      ...resolveParams(message, db, bot, command, FUNCTIONS[name].userParams, userArgs),
-      ...resolveParams(message, db, bot, command, { userRecord: {} }, [message.author.id]),
+      ...General.resolveParams(message, db, bot, command, FUNCTIONS[name].setupParams, trickArgs, PARAMETERS),
+      ...General.resolveParams(message, db, bot, command, FUNCTIONS[name].userParams, userArgs, PARAMETERS),
+      ...General.resolveParams(message, db, bot, command, { userRecord: {} }, [message.author.id], PARAMETERS),
     ];
 
     Promise.all(asyncParams).then(resolvedParams => {
@@ -35,71 +35,6 @@ module.exports = {
     });
   }
 };
-
-function resolveParams(message, db, bot, command, functionParameters, passedArguments) {
-  let params = [];
-  let argumentIndex = 0;
-  Object.keys(functionParameters).forEach(paramName => {
-    let param = PARAMETERS[paramName];
-    if (!param) {
-      params.push(Promise.resolve(() => {
-        throw new Error("Parameter '" + paramName + "' for command '" + command + "' is not defined!");
-      }));
-      return;
-    }
-
-    let currentArg = passedArguments[argumentIndex];
-    let arg = currentArg;
-    if (functionParameters[paramName].multipleWords) {
-      do {
-        argumentIndex++;
-        currentArg = passedArguments[argumentIndex];
-        if (currentArg) arg += " " + currentArg;
-      } while (currentArg);
-    }
-
-    if (!arg) {
-      params.push(Promise.resolve().then(() => {
-        if (functionParameters[paramName].isOptional) {
-          return { name: paramName, value: functionParameters[paramName].default };
-        } else if (functionParameters[paramName].default) {
-          param = PARAMETERS[functionParameters[paramName].default];
-          return param(message, db, bot, arg)
-            .then(resultValue => {
-              return { name: paramName, value: resultValue };
-            })
-            .catch(e => {
-              throw new Error(e.message + "\n\n" + getCommandHelpFormat(command, functionParameters));
-            });
-        } else {
-          throw new Error(getCommandHelpFormat(command, functionParameters));
-        }
-      }));
-    } else {
-      params.push(param(message, db, bot, arg)
-        .then(resultValue => {
-          return { name: paramName, value: resultValue };
-        })
-        .catch(e => {
-          throw new Error(e.message + "\n\n" + getCommandHelpFormat(command, functionParameters));
-        }));
-    }
-    argumentIndex++;
-  });
-  return params;
-}
-
-function getCommandHelpFormat(command, functionParameters) {
-  let msg = "**Use as follows:**\n" + command;
-  Object.keys(functionParameters).forEach(paramName => {
-    if (functionParameters[paramName].isOptional) {
-      msg += " [" + paramName + "]";
-    } else {
-      msg += " {" + paramName + "}";
-    }
-  });
-  return msg;
-}
 
 const CATEGORIES = {
   Inventory: "Inventory",
