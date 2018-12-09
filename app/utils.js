@@ -22,8 +22,6 @@ module.exports = {
       return config[name];
     } else if (process && process.env && process.env[name]){
       return process.env[name];
-    } else {
-        console.error('No ' + name + ' configured');
     }
   },
   log: function (message, text) {
@@ -88,7 +86,7 @@ module.exports = {
     return message.match(/(?:https?):\/\/[\n\S]+/g)[0].trim();
   },
   isAdmin: function (message) {
-    if (message.author.id === '500743672799690752') return true;
+    if (message.author.id === this.getConfig("owner")) return true;
     let perms = message.member.permissions;
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;

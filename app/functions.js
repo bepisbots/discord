@@ -200,6 +200,17 @@ const FUNCTIONS = {
       itemTitle: { multipleWords: true }
     }
   },
+  "RESTORE_INVENTORY": {
+    onlyAdmin: true,
+    fn: Inventory.restore,
+    category: CATEGORIES.Admin,
+    help: Utils.getString("restoreInventoryHelp"),
+    setupParams: { channelId: {} },
+    userParams: {
+      botId: {},
+      userTag: {}
+    }
+  },
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CATEGORIES.Trade,
@@ -292,6 +303,11 @@ const PARAMETERS = {
       if (!shop[itemNumber - 1]) throw new Error("Invalid shop item number");
       return shop[itemNumber - 1];
     });
+  },
+  botId: async function (message, db, bot, arg) {
+    var numberPattern = /\d+/g;
+    const userNumber = arg.match(numberPattern);
+    return userNumber[0];
   },
   userTag: async function (message, db, bot, arg) {
     var numberPattern = /\d+/g;

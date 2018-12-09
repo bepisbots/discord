@@ -37,7 +37,7 @@ module.exports = {
       .map(i => (!i.selling ? Utils.getString("invItem") : Utils.getString("invItemForSale"))
         .replace("{id}", count++)
         .replace("{itemName}", Utils.getItenName(i))
-        .replace("{quantityOwned}", (i.quantity > 1 ? ": " + i.quantity: ""))
+        .replace("{quantityOwned}", (i.quantity > 1 ? ": " + i.quantity : ""))
         .replace("{quantityForSale}", i.selling)
         .replace("{userTag}", "<@" + userRecord.userId + ">"))
       .reduce((i1, i2) => i1 + "\n" + i2);
@@ -144,11 +144,12 @@ module.exports = {
           const seconds = parseInt((difference / 1000) % 60);
           const minutes = parseInt((difference / (1000 * 60)) % 60);
           const hours = parseInt((difference / (1000 * 60 * 60)) % 24);
-          message.channel.send(Utils.getString("catchWaitMessage")
-            .replace("{userTag}", user)
+          let text = Utils.getString("catchWaitMessage")
+            .replace("{userTag}", userRecord)
             .replace("{hours}", hours)
             .replace("{minutes}", minutes)
-            .replace("{seconds}", seconds));
+            .replace("{seconds}", seconds);
+          message.channel.send(text);
           if (!Utils.isAdmin(message)) {
             return;
           }
@@ -212,6 +213,39 @@ module.exports = {
       .setColor(Utils.hexColors.blueSky)
       .setDescription(text);
     message.channel.send({ embed });
+  },
+  restore: async function (message, db, bot, trickArgs, userArgs, params) {
+    const channelId = trickArgs[1];
+    const channel = bot.channels.get(channelId);
+
+    let userRecord = params['userTag'];
+    let botId = params['botId'];
+
+    let lastMessageId;
+    let lastMessageIdProcessed;
+
+    let inventoriesByUser = {};
+
+    do {
+      await channel.fetchMessages({ limit: 100, before: lastMessageId }).then(messages => {
+        console.log("Fetching next 100");
+        let msgArray = messages.array();
+        msgArray.filter(m => m.author.id === botId)
+          .forEach(async (m) => {
+            // Is it an inventory list?
+            if (m.content.indexOf("Nice shibes!") < 0) {
+              return;
+            }
+            console.log(m.content);
+          });
+        lastMessageId = msgArray[msgArray.length - 1].id;
+      });
+      if (lastMessageIdProcessed === lastMessageId || !lastMessageId) {
+        break;
+      }
+      lastMessageIdProcessed = lastMessageId;
+    } while (true);
+
   },
 };
 

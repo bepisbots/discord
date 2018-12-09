@@ -46,7 +46,11 @@ const main = function () {
         disableEveryone: true,
         disabledEvents: ['TYPING_START']
     });
-    bot.login(Utils.getConfig('token'));
+    let token = Utils.getConfig('token');
+    if (Utils.getConfig("devMode") === true){
+        token = Utils.getConfig('tokenDev');
+    }
+    bot.login(token);
 
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
@@ -68,6 +72,9 @@ const main = function () {
         if (message.author.bot || message.system) return; // Ignore bots
         if (message.channel.type === 'dm') { // Direct Message
             return; //Optionally handle direct messages
+        }
+        if (Utils.getConfig("devMode") === true && message.author.id !== Utils.getConfig("owner")){
+            return;
         }
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
             Utils.log(message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
