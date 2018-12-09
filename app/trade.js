@@ -300,9 +300,10 @@ module.exports = {
     if (!userRecord) {
       return;
     }
-    message.channel.send(Utils.getString("invShowTotalCoins")
+    let text = Utils.getString("invShowTotalCoins")
       .replace("{coins}", userRecord.coins || 0)
-      .replace("{userTag}", "<@" + userId + ">"));
+      .replace("{userTag}", "<@" + userId + ">");
+    message.channel.send(text);
   }
 };
 
