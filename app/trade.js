@@ -3,6 +3,50 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
+  assign: async function (message, db, bot, trickArgs, userArgs, params) {
+    let userRecord = params['userTag'];
+    let itemTitle = params['itemTitle'];
+    const channelId = trickArgs[1];
+
+    const posts = db.collection("posts");
+    posts.findOne({ channel: channelId, title: itemTitle }, { limit: 1 }, function (err, catched) {
+      if (err) return;
+      if (!catched) {
+        message.channel.send("Title not found in channel. Make sure title is exact");
+        return;
+      }
+      const col = db.collection("users");
+      if (!userRecord) {
+        userRecord = {
+          userId: message.author.id,
+          username: user,
+          createdTimestamp: message.createdTimestamp,
+          inventory: {},
+        };
+        col.insertOne(userRecord);
+      }
+
+      const igmId = catched._id.toString();
+      if (userRecord.inventory[igmId]) {
+        userRecord.inventory[igmId].quantity++;
+      } else {
+        userRecord.inventory[igmId] = {
+          content: catched.content,
+          quantity: 1
+        };
+      }
+      col.save(userRecord);
+
+      const text = Utils.getString("giftSuccessMessage")
+        .replace("{userTag}", "<@" + message.author.id + ">")
+        .replace("{itemName}", Utils.getItenName(catched))
+      const embed = new Discord.RichEmbed()
+        .setColor(Utils.hexColors.greyDiscord)
+        .setDescription(text)
+        .setImage(Utils.getUrl(catched.content));
+      message.channel.send({ embed });
+    });
+  },
   tradeShop: async function (message, db, bot, trickArgs, userArgs, params) {
     let pageNumber = params['pageNumber'] - 1;
     const col = db.collection("shop");

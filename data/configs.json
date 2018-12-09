@@ -2,6 +2,7 @@
     {
         "type": "strings",
         "value": {
+            "assignInventoryHelp": "Assigns an item to a user's inventory",
             "tradeMessage": "**{userTagReceiver}**, **{userTag}** would like to trade their '{itemName}' with you! React to this message using 🆗 to confirm",
             "tradeMessageSuccess": "**{userTagReceiver}**, now has '{itemName1}'\n**{userTag}** now has '{itemName2}'",
             "tradeMessageAccepted": "**{userTagReceiver}**, please type `!trade `{userTag}` shibeNumber` to trade one of your shibes for a **{itemName}**\n(You can get your shibe numbers from `!inventory`)",
@@ -25,6 +26,7 @@
             "invColorHexError": "Invalid HEX color",
             "catchWaitMessage": "🚫 **{userTag}**, you need to wait another **{hours} hours, {minutes} minutes, and {seconds} seconds** before catching another Shibe",
             "catchSuccessMessage": "Congrats **{userTag}**, you've caught a(n) **{itemName}**!",
+            "giftSuccessMessage": " **{itemName}** has been successfuly assigned to **{userTag}**",
             "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
             "giveAwayMessage": "**{userTag}**, you've received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!",
             "donateMessage": "**{userTag}** donated **{itemName}** to **{userTagReceiver}**",

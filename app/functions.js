@@ -189,6 +189,17 @@ const FUNCTIONS = {
       userTag: { isOptional: true, default: null }
     }
   },
+  "ASSIGN_INVENTORY": {
+    onlyAdmin: true,
+    fn: Trade.assign,
+    category: CATEGORIES.Admin,
+    help: Utils.getString("assignInventoryHelp"),
+    setupParams: { channelId: {} },
+    userParams: {
+      userTag: {},
+      itemTitle: { multipleWords: true }
+    }
+  },
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CATEGORIES.Trade,
@@ -199,6 +210,13 @@ const FUNCTIONS = {
 };
 
 const PARAMETERS = {
+  itemTitle: async function (message, db, bot, arg) {
+    var regex = /^.{2,50}$/;
+    if (!regex.test(arg)) {
+      throw new Error("Invalid title!");
+    }
+    return arg;
+  },
   nickname: async function (message, db, bot, arg) {
     var regex = /^.{2,50}$/;
     if (!regex.test(arg)) {

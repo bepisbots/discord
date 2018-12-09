@@ -41,8 +41,8 @@ module.exports = {
   },
   scanChannels: async function (message, db, bot, trickArgs, userArgs) {
     // Find all channels that are listed in tricks
-    if (userArgs && userArgs.length >= 2) {
-      const ch = userArgs[1];
+    if (userArgs && userArgs.length >= 1) {
+      const ch = userArgs[0];
       const message0 = "Processing Channel Id: " + ch;
       Utils.log(message, message0);
       processChannel(db, bot, message, ch);
@@ -55,7 +55,7 @@ module.exports = {
 
       let channelIds = allTricks
         .map(v => v.say.trim().split(" "))
-        .filter(parts => parts.length > 1 && parts[0] === "RANDOM_POST")
+        .filter(parts => parts.length > 1 && (parts[0] === "RANDOM_POST" || parts[0] === "CATCH_INVENTORY"))
         .map(parts => parts[1])
         .filter(ch => ch);
       // dedup 
@@ -95,15 +95,17 @@ async function processChannel(db, bot, message, channelId) {
         .forEach(async (m) => {
           await col.findOne({ channel: channelId, content: m.content.trim() }, { limit: 1 }, function (err, doc) {
             if (err) return;
+            const message = {
+              channel: channelId,
+              author: m.author.username,
+              authorId: m.author.id,
+              createdTimestamp: m.createdTimestamp,
+              content: m.content.trim()
+            };
+            let title = Utils.removeUrls(m.content).trim();
+            if (title) message.title = title;
+
             if (!doc) {
-              const message = {
-                channel: channelId,
-                author: m.author.username,
-                authorId: m.author.id,
-                createdTimestamp: m.createdTimestamp,
-                title: Utils.getItenName(m.content),
-                content: m.content.trim()
-              };
               col.insertOne(message);
               counter++;
             }
