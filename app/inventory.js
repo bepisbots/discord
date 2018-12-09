@@ -128,7 +128,7 @@ module.exports = {
       if (!userRecord) {
         userRecord = {
           userId: message.author.id,
-          username: user,
+          username: message.author.username,
           createdTimestamp: message.createdTimestamp,
           inventory: {},
         };

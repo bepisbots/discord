@@ -11,9 +11,9 @@
             "sellError": "**{userTag}**, please specify the item number from your inventory followed by the number of bepis you want to sell the item",
             "shopTitle": "**SHOP**",
             "buyError": "**{userTag}**, please specify a valid item number from the shop",
-            "buySuccess": "**{userTag}**, you have bought **{itemName}** from **{sellerTag}** for {paidCoins} bepis",
+            "buySuccess": "**{userTag}**, you have bought **{itemName}** from **{sellerTag}** for {paidCoins} bepis <:bepis:466777977179602996>",
             "buyNotEnoughCoins": "**{userTag}**, you don't have enough bepis to buy that item",
-            "shopListing": "{id}) **{itemName}** (Sold by **{userName}**): {coins} bepis",
+            "shopListing": "{id}) **{itemName}** (Sold by **{userName}**): {coins} bepis <:bepis:466777977179602996>",
             "sellErrorCoins": "**{userTag}**, please enter a value greater than 0",
             "sellSuccess": "**{itemName}** is now for sale!",
             "unSellError": "**{userTag}**, please specify the item number from your inventory.",
@@ -28,7 +28,7 @@
             "catchSuccessMessage": "Congrats **{userTag}**, you've caught a(n) **{itemName}**!",
             "giftSuccessMessage": " **{itemName}** has been successfuly assigned to **{userTag}**",
             "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
-            "giveAwayMessage": "**{userTag}**, you've received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis!",
+            "giveAwayMessage": "**{userTag}**, you've received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis <:bepis:466777977179602996>!",
             "donateMessage": "**{userTag}** donated **{itemName}** to **{userTagReceiver}**",
             "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop",
             "tradeErrorShop": "**{userTag}**, you can't trade items that are currently for sale in the shop",
@@ -51,7 +51,9 @@
             "tradeShopHelp": "Shows what's in the shop",
             "tradeBuyHelp": "Buys an item from the shop",
             "tradeGiveHelp": "Releases an item from your inventory in exchanage for bepis",
-            "showCoinsHelp": "Shows total bepis"
+            "showCoinsHelp": "Shows total bepis",
+            "giveCoinsHelp": "Assigns bepis to a user",
+            "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>"
         }
     },
     {

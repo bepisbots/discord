@@ -3,6 +3,25 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
+  giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
+    let user = params['userTag'];
+    let coins = params['coins'];
+
+    if (!user.coins)
+      user.coins = coins;
+    else
+      user.coins += coins;
+    const usrCol = db.collection("users");
+    usrCol.save(user);
+
+    const text = Utils.getString("giveCoinsSuccessMessage")
+      .replace("{userTag}", "<@" + message.author.id + ">")
+      .replace("{totalCoins}", user.coins)
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.greyDiscord)
+      .setDescription(text);
+    message.channel.send({ embed });
+  },
   assign: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userTag'];
     let itemTitle = params['itemTitle'];
@@ -16,15 +35,6 @@ module.exports = {
         return;
       }
       const col = db.collection("users");
-      if (!userRecord) {
-        userRecord = {
-          userId: message.author.id,
-          username: user,
-          createdTimestamp: message.createdTimestamp,
-          inventory: {},
-        };
-        col.insertOne(userRecord);
-      }
 
       const igmId = catched._id.toString();
       if (userRecord.inventory[igmId]) {

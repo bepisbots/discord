@@ -207,6 +207,14 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { userTag: { isOptional: true } }
   },
+  "GIVE_COINS": {
+    onlyAdmin: true,
+    fn: Trade.giveCoins,
+    category: CATEGORIES.Admin,
+    help: Utils.getString("giveCoinsHelp"),
+    setupParams: {},
+    userParams: { userTag: {}, coins: {} }
+  },
 };
 
 const PARAMETERS = {
@@ -227,7 +235,19 @@ const PARAMETERS = {
   userRecord: async function (message, db, bot, arg) {
     if (!arg) arg = message.author.id;
     const col = db.collection("users");
-    return await col.findOne({ userId: arg });
+
+    let userRecord = await col.findOne({ userId: arg });
+    if (!userRecord) {
+      userRecord = {
+        userId: message.author.id,
+        username: message.author.username,
+        createdTimestamp: message.createdTimestamp,
+        inventory: {},
+      };
+      col.insertOne(userRecord);
+    }
+
+    return userRecord;
   },
   channelId: async function (message, db, bot, arg) {
     return arg;
@@ -288,10 +308,16 @@ const PARAMETERS = {
       };
     }
     return userRecord;
-
   },
   hexColor: async function (message, db, bot, arg) {
     return arg;
+  },
+  coins: async function (message, db, bot, arg) {
+    if (isNaN(arg)) {
+      throw new Error("Enter a numeric value");
+    }
+    const coins = parseInt(arg);
+    return coins;
   },
   totalCost: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
