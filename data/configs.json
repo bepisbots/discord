@@ -19,7 +19,7 @@
             "unSellSuccess": "**{itemName}** is no longer for sale!",
             "invTitle": "**{userTag}'s Inventory**",
             "invItem": "{id}) {itemName} {quantityOwned}",
-            "invShowTotalCoins": "**{userTag}**, has {coins} bepis <:bepis:521066080043532319>",
+            "invShowTotalCoins": "**{userTag}**, has {coins} bepis <:bepis:466777977179602996>",
             "invItemForSale": "{id}) {itemName} {quantityOwned} ({quantityForSale} for sale)",
             "invColorError": "!invcolor @user #hex",
             "invColorHexError": "Invalid HEX color",
