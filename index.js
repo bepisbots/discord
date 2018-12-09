@@ -87,7 +87,7 @@ const main = function () {
                 var hours = (Date.now() - lastTimeChannelsScanned) / 36e5;
                 if (hours > 1) {
                     lastTimeChannelsScanned = Date.now();
-                    Admin.scanChannels(null, db, bot, configs);
+                    Admin.scanChannels(null, db, bot);
                 }
             });
         }

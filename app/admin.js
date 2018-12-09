@@ -1,4 +1,5 @@
 const Entities = require('html-entities').AllHtmlEntities;
+const Utils = require('./utils');
 const entities = new Entities();
 
 module.exports = {
@@ -100,6 +101,7 @@ async function processChannel(db, bot, message, channelId) {
                 author: m.author.username,
                 authorId: m.author.id,
                 createdTimestamp: m.createdTimestamp,
+                title: Utils.getItenName(m.content),
                 content: m.content.trim()
               };
               col.insertOne(message);
