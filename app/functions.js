@@ -200,17 +200,15 @@ const FUNCTIONS = {
       itemTitle: { multipleWords: true }
     }
   },
-  "RESTORE_INVENTORY": {
-    onlyAdmin: true,
-    fn: Inventory.restore,
-    category: CATEGORIES.Admin,
-    help: Utils.getString("restoreInventoryHelp"),
-    setupParams: { channelId: {} },
-    userParams: {
-      botId: {},
-      userTag: {}
-    }
-  },
+  // "RESTORE_INVENTORY": {
+  //   onlyAdmin: true,
+  //   fn: Inventory.restore,
+  //   category: CATEGORIES.Admin,
+  //   help: Utils.getString("restoreInventoryHelp"),
+  //   setupParams: { channelId: {},  channelId: {} },
+  //   userParams: {
+  //   }
+  // },
   "SHOW_COINS": {
     fn: Trade.showCoins,
     category: CATEGORIES.Trade,

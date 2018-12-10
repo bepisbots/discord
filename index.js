@@ -27,7 +27,7 @@ const getDb = function (callback) {
                     Utils.log(null, "DB connection closed");
                     database.close();
                     _db = null;
-                }, 1000 * 60 * 10);
+                }, 1000 * 60 * 20);
                 Utils.log(null, "DB connection opened");
                 callback(_db);
             });
