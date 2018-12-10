@@ -76,7 +76,7 @@ module.exports = {
 
       function formatHelpMessage(fnDef, trickDef) {
         var help = fnDef.help;
-        if (help.indexOf("{channelId}") >= 0) {
+        if (help && help.indexOf("{channelId}") >= 0) {
           var fnParts = trickDef.say.split(" ");
           if (fnParts.length < 2) { return; }
           let fnParam = fnParts[1];
