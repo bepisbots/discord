@@ -63,24 +63,18 @@
         "value": [
             {
                 "symbol": "💫",
-                "scarcity": {
-                    "$numberInt": "5"
-                },
-                "giveAwayValue": "7000"
+                "scarcity": 5,
+                "giveAwayValue": 7000
             },
             {
                 "symbol": "🌟",
-                "scarcity": {
-                    "$numberInt": "4"
-                },
-                "giveAwayValue": "2000"
+                "scarcity": 4,
+                "giveAwayValue": 2000
             },
             {
                 "symbol": "⭐",
-                "scarcity": {
-                    "$numberInt": "3"
-                },
-                "giveAwayValue": "500"
+                "scarcity": 3,
+                "giveAwayValue": 500
             }
         ]
     }
