@@ -192,10 +192,12 @@ module.exports = {
 function getCommandHelpFormat(command, functionParameters) {
   let msg = "**Use as follows:**\n" + command;
   Object.keys(functionParameters).forEach(paramName => {
+    let paramHelp = Utils.getString(paramName);
+    paramHelp = paramHelp ? paramHelp: paramName;
     if (functionParameters[paramName].isOptional) {
-      msg += " [" + paramName + "]";
+      msg += " [" + paramHelp + "]";
     } else {
-      msg += " {" + paramName + "}";
+      msg += " {" + paramHelp + "}";
     }
   });
   return msg;

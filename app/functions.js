@@ -147,7 +147,7 @@ const FUNCTIONS = {
     category: CATEGORIES.Trade,
     help: Utils.getString("tradeSellHelp"),
     setupParams: {},
-    userParams: { inventoryItemNumber: {}, totalCost: {} },
+    userParams: { inventoryItemNumber: {}, coins: {} },
   },
   "UNSELL_INVENTORY": {
     fn: Trade.tradeUnSell,
@@ -333,13 +333,13 @@ const PARAMETERS = {
     const coins = parseInt(arg);
     return coins;
   },
-  totalCost: async function (message, db, bot, arg) {
+  coins: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
-      throw new Error("Enter a numeric value in totalCost");
+      throw new Error("Enter a numeric value for coins".replace('coins', Utils.getString('coins')));
     }
     const cost = parseInt(arg);
     if (cost <= 0 || cost > 1000) {
-      throw new Error("Invalid total cost. Enter a value between 1 and 1000");
+      throw new Error("Invalid coins. Enter a value between 1 and 1000".replace('coins', Utils.getString('coins')));
     }
     return cost;
   }

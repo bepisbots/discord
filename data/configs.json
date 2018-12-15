@@ -2,6 +2,7 @@
     {
         "type": "strings",
         "value": {
+            "coins": "bepis",
             "assignInventoryHelp": "Assigns an item to a user's inventory",
             "tradeMessage": "**{userTagReceiver}**, **{userTag}** would like to trade their '{itemName}' with you! React to this message using 🆗 to confirm",
             "tradeMessageSuccess": "**{userTagReceiver}**, now has '{itemName1}'\n**{userTag}** now has '{itemName2}'",
