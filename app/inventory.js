@@ -47,7 +47,7 @@ module.exports = {
       sideBarColor = userRecord.preferences.sideBarColor;
     }
     let title = "**{userTag}'s Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
-    title = title.replace("{userTag}","<@" + userRecord.userId + ">");
+    title = title.replace("{userTag}", userRecord.username);
 
     message.channel.send({
       embed: {
