@@ -150,9 +150,9 @@ module.exports = {
             .replace("{minutes}", minutes)
             .replace("{seconds}", seconds);
           message.channel.send(text);
-          if (!Utils.isAdmin(message)) {
-            return;
-          }
+          // if (!Utils.isAdmin(message)) {
+          return;
+          // }
         }
       }
       if (userRecord.inventory[igmId]) {
