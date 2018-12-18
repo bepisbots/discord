@@ -86,6 +86,7 @@ module.exports = {
     return message.match(/(?:https?):\/\/[\n\S]+/g)[0].trim();
   },
   isAdmin: function (message) {
+    if (this.getConfig("devMode") === true) return true;
     if (message.author.id === this.getConfig("owner")) return true;
     let perms = message.member.permissions;
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");

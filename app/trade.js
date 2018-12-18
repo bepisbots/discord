@@ -3,6 +3,32 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
+  flipCoin: async function (message, db, bot, trickArgs, userArgs, params) {
+    const user = params['userRecord'];
+    let coins = params['coins'];
+
+    if (user.coins < coins){
+      message.channel.send(Utils.getString("notEnoughCoins")
+        .replace("{userTag}", "<@" + message.author.id + ">"));
+      return;
+    }
+    if (!user.coins)
+      user.coins = coins;
+
+    let won = Math.random() >= 0.5;
+    if (won) {
+      user.coins += coins;
+    } else {
+      user.coins -= coins;
+    }
+    const usrCol = db.collection("users");
+    usrCol.save(user);
+
+    const text = Utils.getString(won ? "flipCoinWonMessage": "flipCoinLostMessage")
+      .replace("{userTag}", "<@" + message.author.id + ">")
+      .replace("{totalCoins}",coins)
+    message.channel.send(text);
+  },
   giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
     let coins = params['coins'];

@@ -14,6 +14,7 @@
             "buyError": "**{userTag}**, please specify a valid item number from the shop",
             "buySuccess": "**{userTag}**, you have bought **{itemName}** from **{sellerTag}** for {paidCoins} bepis <:bepis:466777977179602996>",
             "buyNotEnoughCoins": "**{userTag}**, you don't have enough bepis to buy that item",
+            "notEnoughCoins": "**{userTag}**, you don't have enough bepis",
             "shopListing": "{id}) **{itemName}** (Sold by **{userName}**): {coins} bepis <:bepis:466777977179602996>",
             "sellErrorCoins": "**{userTag}**, please enter a value greater than 0",
             "sellSuccess": "**{itemName}** is now for sale!",
@@ -52,9 +53,12 @@
             "tradeShopHelp": "Shows what's in the shop",
             "tradeBuyHelp": "Buys an item from the shop",
             "tradeGiveHelp": "Releases an item from your inventory in exchanage for bepis",
+            "tradeFlipCoinHelp": "Flips a coin with 50% chance of winning or losing",
             "showCoinsHelp": "Shows total bepis",
             "giveCoinsHelp": "Assigns bepis to a user",
-            "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>"
+            "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>",
+            "flipCoinWonMessage": ".        _------_\n.   /                 \\\n.  |    BEPIS    |\n.   \\                 /\n.      '''------'''\n\n**{userTag}**, you got **{totalCoins}** bepis!",
+            "flipCoinLostMessage": ".        _------_\n.   /                 \\\n.  |   BOOPIS    |\n.   \\                 /\n.      '''------'''\n**{userTag}**, you lost **{totalCoins}** bepis. Try again?"
         }
     },
     {

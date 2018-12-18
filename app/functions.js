@@ -189,6 +189,15 @@ const FUNCTIONS = {
       userTag: { isOptional: true, default: null }
     }
   },
+  "FLIP_COIN": {
+    fn: Trade.flipCoin,
+    category: CATEGORIES.Trade,
+    help: Utils.getString("tradeFlipCoinHelp"),
+    setupParams: {},
+    userParams: {
+      coins: {}
+    }
+  },
   "ASSIGN_INVENTORY": {
     onlyAdmin: true,
     fn: Trade.assign,
