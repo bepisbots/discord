@@ -25,10 +25,9 @@ module.exports = {
   assign: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userTag'];
     let itemTitle = params['itemTitle'];
-    const channelId = trickArgs[1];
 
     const posts = db.collection("posts");
-    posts.findOne({ channel: channelId, title: itemTitle }, { limit: 1 }, function (err, catched) {
+    posts.findOne({ $text: { $search: "\"" + itemTitle + "\"" } }, { limit: 1 }, function (err, catched) {
       if (err) return;
       if (!catched) {
         message.channel.send("Title not found in channel. Make sure title is exact");

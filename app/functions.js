@@ -194,7 +194,7 @@ const FUNCTIONS = {
     fn: Trade.assign,
     category: CATEGORIES.Admin,
     help: Utils.getString("assignInventoryHelp"),
-    setupParams: { channelId: {} },
+    setupParams: { },
     userParams: {
       userTag: {},
       itemTitle: { multipleWords: true }
