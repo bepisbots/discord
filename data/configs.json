@@ -56,7 +56,7 @@
             "tradeGiveHelp": "Releases an item from your inventory in exchanage for bepis",
             "tradeFlipCoinHelp": "Flips a coin with 50% chance of winning or losing",
             "showCoinsHelp": "Shows total bepis",
-            "giveCoinsHelp": "Assigns bepis to a user",
+            "giveCoinsHelp": "Give away bepis to another user",
             "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>",
             "flipCoinWonMessage": ".        _------_\n.   /                 \\\n.  |    BEPIS    |\n.   \\                 /\n.      '''------'''\n\n**{userTag}**, you got **{totalCoins}** bepis!",
             "flipCoinLostMessage": ".        _------_\n.   /                 \\\n.  |   BOOPIS    |\n.   \\                 /\n.      '''------'''\n**{userTag}**, you lost **{totalCoins}** bepis. Try again?"

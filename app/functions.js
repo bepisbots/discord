@@ -232,9 +232,8 @@ const FUNCTIONS = {
     userParams: { userTag: { isOptional: true } }
   },
   "GIVE_COINS": {
-    onlyAdmin: true,
     fn: Trade.giveCoins,
-    category: CATEGORIES.Admin,
+    category: CATEGORIES.Trade,
     help: Utils.getString("giveCoinsHelp"),
     setupParams: {},
     userParams: { userTag: {}, coins: {} }
