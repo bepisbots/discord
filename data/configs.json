@@ -43,6 +43,7 @@
             "randomPostHelp": "Shows a random message from '{channelId}'",
             "invCatchHelp": "Catches a shibe from {channelId}",
             "invListHelp": "Shows your inventory",
+            "invListAllHelp": "Shows all your inventory (no paging)",
             "invShowHelp": "Shows an item from the inventory",
             "invTrashHelp": "Removes an item from your inventory",
             "invNickHelp": "Assigns nickname to inventory item",

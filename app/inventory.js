@@ -2,7 +2,7 @@ const Utils = require('./utils');
 const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
-module.exports = {
+const mod = {
   invFuse: async function (message, db, bot, trickArgs, userArgs, params) {
     let itemNumber1 = params['inventoryItemNumber1'] - 1;
     let itemNumber2 = params['inventoryItemNumber2'] - 1;
@@ -119,8 +119,13 @@ module.exports = {
     if (userRecord && userRecord.preferences && userRecord.preferences.sideBarColor) {
       sideBarColor = userRecord.preferences.sideBarColor;
     }
-    let title = "**{userTag}'s Inventory**" + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
-    title = title.replace("{userTag}", userRecord.username);
+    let title;
+    if (!params['noTitle']) {
+      title = "**{userTag}'s Inventory**";
+      title = title.replace("{userTag}", userRecord.username);
+    }
+    if (!params['noPages'] && totalPages > 1)
+      title += " Page " + (pageNumber + 1) + " of " + totalPages;
 
     message.channel.send({
       embed: {
@@ -129,6 +134,19 @@ module.exports = {
         description: text
       }
     });
+  },
+  invListAll: async function (message, db, bot, trickArgs, userArgs, params) {
+    // Get user entry
+    let userRecord = params['userTag'];
+    if (!userRecord || !userRecord.inventory) return;
+    let inventory = Object.values(userRecord.inventory);
+    const totalPages = Math.ceil(inventory.length / PAGE_SIZE);
+    for (let pageNumber = 1; pageNumber <= totalPages; pageNumber++) {
+      params['pageNumber'] = pageNumber;
+      params['noTitle'] = pageNumber != 1;
+      params['noPages'] = true;
+      mod.invList(message, db, bot, trickArgs, userArgs, params);
+    }
   },
   invShow: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
@@ -288,5 +306,4 @@ module.exports = {
     message.channel.send({ embed });
   },
 };
-
-
+module.exports = mod;

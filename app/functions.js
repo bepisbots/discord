@@ -114,6 +114,15 @@ const FUNCTIONS = {
       userTag: { default: "userRecord" },
     }
   },
+  "LIST_INVENTORY_ALL": {
+    fn: Inventory.invListAll,
+    category: CATEGORIES.Inventory,
+    help: Utils.getString("invListAllHelp"),
+    setupParams: {},
+    userParams: {
+      userTag: { default: "userRecord" },
+    }
+  },
   "SHOW_INVENTORY": {
     fn: Inventory.invShow,
     category: CATEGORIES.Inventory,
