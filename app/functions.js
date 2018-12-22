@@ -238,6 +238,14 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { userTag: {}, coins: {} }
   },
+  "CREATE_COINS": {
+    onlyAdmin: true,
+    fn: Trade.createCoins,
+    category: CATEGORIES.Admin,
+    help: Utils.getString("createCoinsHelp"),
+    setupParams: {},
+    userParams: { userTag: {}, coins: {} }
+  },
 };
 
 const PARAMETERS = {

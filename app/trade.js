@@ -34,17 +34,34 @@ module.exports = {
     let coins = params['coins'];
 
     const usrCol = db.collection("users");
-    if (!Utils.isAdmin(message)) {
-      let sourceUser = params['userRecord'];
-      if (sourceUser.coins < coins) {
-        message.channel.send(Utils.getString("notEnoughCoins")
-          .replace("{userTag}", "<@" + message.author.id + ">"));
-        return;
-      }
-      sourceUser.coins -= coins;
-      usrCol.save(sourceUser);
+    let sourceUser = params['userRecord'];
+    if (sourceUser.coins < coins) {
+      message.channel.send(Utils.getString("notEnoughCoins")
+        .replace("{userTag}", "<@" + message.author.id + ">"));
+      return;
     }
+    sourceUser.coins -= coins;
+    usrCol.save(sourceUser);
 
+    if (!user.coins)
+      user.coins = coins;
+    else
+      user.coins += coins;
+    usrCol.save(user);
+
+    const text = Utils.getString("giveCoinsSuccessMessage")
+      .replace("{userTag}", "<@" + message.author.id + ">")
+      .replace("{totalCoins}", user.coins)
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.greyDiscord)
+      .setDescription(text);
+    message.channel.send({ embed });
+  },
+  createCoins: async function (message, db, bot, trickArgs, userArgs, params) {
+    let user = params['userTag'];
+    let coins = params['coins'];
+
+    const usrCol = db.collection("users");
     if (!user.coins)
       user.coins = coins;
     else
