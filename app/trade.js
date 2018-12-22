@@ -35,6 +35,11 @@ module.exports = {
 
     const usrCol = db.collection("users");
     let sourceUser = params['userRecord'];
+
+    if (sourceUser.userId === user.userId){
+      return;
+    }
+
     if (sourceUser.coins < coins) {
       message.channel.send(Utils.getString("notEnoughCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
