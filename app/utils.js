@@ -17,10 +17,10 @@ module.exports = {
   getString: function (stringId) {
     return this.getConfigs().strings[stringId];
   },
-  getConfig: function(name) {
-    if (config && config[name]){
+  getConfig: function (name) {
+    if (config && config[name]) {
       return config[name];
-    } else if (process && process.env && process.env[name]){
+    } else if (process && process.env && process.env[name]) {
       return process.env[name];
     }
   },
@@ -83,6 +83,8 @@ module.exports = {
   },
   getUrl: function (message) {
     if (!message) return "";
+    let matches = message.match(/(?:https?):\/\/[\n\S]+/g);
+    if (!matches || matches.length === 0) return message;
     return message.match(/(?:https?):\/\/[\n\S]+/g)[0].trim();
   },
   isAdmin: function (message) {

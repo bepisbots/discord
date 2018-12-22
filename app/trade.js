@@ -53,7 +53,7 @@ module.exports = {
     let itemTitle = params['itemTitle'];
 
     const posts = db.collection("posts");
-    posts.findOne({ $text: { $search: "\"" + itemTitle + "\"" } }, { limit: 1 }, function (err, catched) {
+    posts.findOne({ title: itemTitle }, { limit: 1 }, function (err, catched) {
       if (err) return;
       if (!catched) {
         message.channel.send("Title not found in channel. Make sure title is exact");

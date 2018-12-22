@@ -142,6 +142,13 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { inventoryItemNumber: {} },
   },
+  "FUSE_INVENTORY": {
+    fn: Inventory.invFuse,
+    category: CATEGORIES.Inventory,
+    help: Utils.getString("invFuse"),
+    setupParams: { channelId: {} },
+    userParams: { inventoryItemNumber1: {}, inventoryItemNumber2: {} },
+  },
   "SELL_INVENTORY": {
     fn: Trade.tradeSell,
     category: CATEGORIES.Trade,
@@ -188,8 +195,7 @@ const FUNCTIONS = {
       inventoryItemNumber: {},
       userTag: { isOptional: true, default: null }
     }
-  },
-  "FLIP_COIN": {
+  }, "FLIP_COIN": {
     fn: Trade.flipCoin,
     category: CATEGORIES.Trade,
     help: Utils.getString("tradeFlipCoinHelp"),
@@ -203,7 +209,7 @@ const FUNCTIONS = {
     fn: Trade.assign,
     category: CATEGORIES.Admin,
     help: Utils.getString("assignInventoryHelp"),
-    setupParams: { },
+    setupParams: {},
     userParams: {
       userTag: {},
       itemTitle: { multipleWords: true }
@@ -296,6 +302,12 @@ const PARAMETERS = {
       throw new Error("Enter a value greather than 0 for inventoryItemNumber");
     }
     return itemNumber;
+  },
+  inventoryItemNumber1: function (message, db, bot, arg) {
+    return PARAMETERS.inventoryItemNumber(message, db, bot, arg)
+  },
+  inventoryItemNumber2: function (message, db, bot, arg) {
+    return PARAMETERS.inventoryItemNumber(message, db, bot, arg)
   },
   shopItemNumber: async function (message, db, bot, arg) {
     if (isNaN(arg)) {

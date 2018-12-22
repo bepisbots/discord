@@ -47,6 +47,7 @@
             "invTrashHelp": "Removes an item from your inventory",
             "invNickHelp": "Assigns nickname to inventory item",
             "invClearNickHelp": "Resets nickname to inventory item",
+            "invFuse": "Fuses two items together forming a new item",
             "tradeHelp": "Trades an item with other person",
             "tradeSellHelp": "Sells an item from the inventory",
             "tradeUnSellHelp": "Stops selling an item from the inventory",

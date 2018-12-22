@@ -3,6 +3,79 @@ const Discord = require('discord.js');
 const PAGE_SIZE = 12;
 
 module.exports = {
+  invFuse: async function (message, db, bot, trickArgs, userArgs, params) {
+    let itemNumber1 = params['inventoryItemNumber1'] - 1;
+    let itemNumber2 = params['inventoryItemNumber2'] - 1;
+    const channelId = trickArgs[1];
+    let userRecord = params['userRecord'];
+
+    const item1key = Utils.getInventoryItemKeyFromNumber(userRecord, itemNumber1);
+    const item2key = Utils.getInventoryItemKeyFromNumber(userRecord, itemNumber2);
+
+    const item1 = userRecord.inventory[item1key];
+    const item2 = userRecord.inventory[item2key];
+
+    const item1Name = Utils.getItenName(item1);
+    const item2Name = Utils.getItenName(item2);
+
+    if (item1.quantity === item1.selling) {
+      message.channel.send("Failed\nReason: (" + (itemNumber1 + 1) + ") **"
+        + item1Name + "** is currently for sale");
+      return;
+    }
+    if (item2.quantity === item2.selling) {
+      message.channel.send("Failed\nReason: (" + (itemNumber2 + 1) + ") **"
+        + item2Name + "** is currently for sale");
+      return;
+    }
+
+    const posts = db.collection("posts");
+    posts.findOne({
+      "channel": channelId,
+      $text: {
+        $search: "\"" + item1Name + "\" \"" + item2Name + "\""
+      }
+    }, { limit: 1 }).then(async fuseRecord => {
+      if (!fuseRecord) {
+        message.channel.send("No fuse formula found for **" + item1Name + "** and **" + item2Name + "**. Keep trying!");
+        return;
+      }
+      let fuseParts = fuseRecord.title.split(';');
+      if (fuseParts.length < 3) {
+        message.channel.send("Error found in fuse formula for **" + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
+        return;
+      }
+      fuseParts = fuseParts.map(part => part.trim());
+      if (fuseParts[2] === item1Name || fuseParts[2] === item2Name) {
+        return;
+      }
+      let fusedItem = await posts.findOne({ title: fuseParts[2] }, { limit: 1 });
+      if (!fusedItem) {
+        message.channel.send("Fused item not found: Error found in fuse formula for **" + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
+        return;
+      }
+      // Make the assignment to user
+      item1.quantity--;
+      if (userRecord.inventory[item1key].quantity <= 0) {
+        delete userRecord.inventory[item1key];
+      }
+      item2.quantity--;
+      if (userRecord.inventory[item2key].quantity <= 0) {
+        delete userRecord.inventory[item2key];
+      }
+      const fuseItemId = fusedItem._id.toString();
+      if (userRecord.inventory[fuseItemId]) {
+        userRecord.inventory[fuseItemId].quantity++;
+      } else {
+        userRecord.inventory[fuseItemId] = {
+          content: fusedItem.content,
+          quantity: 1
+        };
+      }
+      db.collection("users").save(userRecord);
+      message.channel.send("Congratulations! You earned **" + fusedItem.title + "** by combining **" + item1Name + "** and **" + item2Name + "**");
+    });
+  },
   invTrash: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     let userRecord = params['userRecord'];
