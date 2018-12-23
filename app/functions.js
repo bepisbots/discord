@@ -211,7 +211,8 @@ const FUNCTIONS = {
       inventoryItemNumber: {},
       userTag: { isOptional: true, default: null }
     }
-  }, "FLIP_COIN": {
+  },
+  "FLIP_COIN": {
     fn: Trade.flipCoin,
     category: CATEGORIES.Trade,
     help: Utils.getString("tradeFlipCoinHelp"),
@@ -221,11 +222,10 @@ const FUNCTIONS = {
     }
   },
   "ASSIGN_INVENTORY": {
-    onlyAdmin: true,
     fn: Trade.assign,
     category: CATEGORIES.Admin,
     help: Utils.getString("assignInventoryHelp"),
-    setupParams: {},
+    setupParams: { roles: {} },
     userParams: {
       userTag: {},
       itemTitle: { multipleWords: true }
@@ -251,21 +251,23 @@ const FUNCTIONS = {
     fn: Trade.giveCoins,
     category: CATEGORIES.Trade,
     help: Utils.getString("giveCoinsHelp"),
-    setupParams: {},
+    setupParams: { },
     userParams: { userTag: {}, coins: {} }
   },
   "CREATE_COINS": {
-    onlyAdmin: true,
     fn: Trade.createCoins,
     category: CATEGORIES.Admin,
     help: Utils.getString("createCoinsHelp"),
-    setupParams: {},
+    setupParams: { roles: {} },
     userParams: { userTag: {}, coins: {} }
   },
 };
 
 const PARAMETERS = {
-  itemTitle: async function (message, db, bot, arg) {
+  roles: async function (message, db, bot, arg) {
+    // TODO: validate role
+    return arg;
+  }, itemTitle: async function (message, db, bot, arg) {
     var regex = /^.{2,50}$/;
     if (!regex.test(arg)) {
       throw new Error("Invalid title!");

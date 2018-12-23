@@ -115,6 +115,24 @@ module.exports = {
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;
   },
+  isInAnyRole: function (db, message, roles) {    
+    let rolesArray = roles.split(",");
+    // if (this.isAdmin(message)) {
+     // return true;
+    //}
+    if (rolesArray && Array.isArray(rolesArray)) {
+      let isInARole = false;
+      rolesArray.forEach(role => {
+        if (message.member.roles.find("name", role.replace("_", " "))) {
+          isInARole = true;
+        }
+      });
+      if (isInARole) return true;
+      this.sendMessage(db, message, "You can't perform this action as you're not member of any of the following roles:\n"
+        + rolesArray.join(", "));
+    }
+    return false;
+  },
   replaceTemplates: function (text, message, item) {
     if (!text) return;
     return text

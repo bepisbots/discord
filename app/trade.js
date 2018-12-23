@@ -32,11 +32,13 @@ module.exports = {
   giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
     let coins = params['coins'];
+    const roles = trickArgs[1];
+    if (!Utils.isInAnyRole(db, message, roles)) return;
 
     const usrCol = db.collection("users");
     let sourceUser = params['userRecord'];
 
-    if (sourceUser.userId === user.userId){
+    if (sourceUser.userId === user.userId) {
       return;
     }
 
@@ -65,6 +67,8 @@ module.exports = {
   createCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
     let coins = params['coins'];
+    const roles = trickArgs[1];
+    if (!Utils.isInAnyRole(db, message, roles)) return;
 
     const usrCol = db.collection("users");
     if (!user.coins)
@@ -84,6 +88,8 @@ module.exports = {
   assign: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userTag'];
     let itemTitle = params['itemTitle'];
+    const roles = trickArgs[1];
+    if (!Utils.isInAnyRole(db, message, roles)) return;
 
     const posts = db.collection("posts");
     posts.findOne({ title: itemTitle }, { limit: 1 }, function (err, catched) {
