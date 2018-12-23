@@ -4,6 +4,40 @@ const dateformat = require('dateformat');
 const config = optionalRequire('../config.json') || {};
 
 module.exports = {
+  log: function (db, message, text) {
+    if (!message || !message.channel || !text) return;
+    try {
+      const channelName = message ? message.channel.name : "";
+      const guildName = message ? message.channel.guild.name : "";
+      const date = dateformat(new Date(), "dd/mm/yy, hh:MM:ss TT");
+      const messagetext = (text ? text : (message ? message.content : ""));
+      const authorTag = message ? message.author.tag : "";
+      const infoText = message ? ": " + authorTag + " on " + channelName + ", " : "";
+      console.log(date + ": " + infoText + "[" + messagetext + "]");
+
+      if (db) {
+        let logEntry = {
+          timestamp: Date.now(),
+          formattedTime: date,
+          guildName: guildName,
+          channelName: channelName,
+          authorId: (message.author ? message.author.id : ""),
+          authorTag: authorTag,
+          request: message.content,
+          response: (text.embed ? text.embed.title : text),
+          responseFull: text
+        };
+        db.collection("log").insertOne(logEntry);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  },
+  sendMessage: function (db, message, text) {
+    if (!message || !message.channel || !text) return;
+    message.channel.send(text);
+    this.log(db, message, text);
+  },
   getConfigs: function () {
     if (this.configs) {
       return this.configs;
@@ -22,19 +56,6 @@ module.exports = {
       return config[name];
     } else if (process && process.env && process.env[name]) {
       return process.env[name];
-    }
-  },
-  log: function (message, text) {
-    try {
-      const channelName = message ? message.channel.name : "";
-      const date = dateformat(new Date(), "dd/mm/yy, hh:MM:ss TT");
-      const messagetext = (text ? text : (message ? message.content : ""));
-      const authorTag = message ? message.author.tag : "";
-      const infoText = message ? ": " + authorTag + " on " + channelName + ", " : "";
-
-      console.log(date + ": " + infoText + "[" + messagetext + "]");
-    } catch (e) {
-      console.error(e);
     }
   },
   getInventoryItemFromNumber: function (userRecord, inventoryItemNumber) {

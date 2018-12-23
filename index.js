@@ -77,7 +77,7 @@ const main = function () {
             return;
         }
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
-            Utils.log(message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
+            Utils.log(null, message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
                 .slice(Utils.getConfig('prefix').length)
                 .replaceAll("\n", " ")
@@ -118,7 +118,7 @@ const trick = async function (cmd, message, db, bot, userArgs) {
         if (Functions.exists(trickArgs[0])) {
             Functions.run(cmd, trickArgs[0], message, db, bot, trickArgs, userArgs)
         } else
-            message.channel.send(entities.decode(trick.say));
+            Utils.sendMessage(db, message, entities.decode(trick.say));
     } catch (e) {
         console.warn(e);
     }

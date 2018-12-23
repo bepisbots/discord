@@ -5,7 +5,7 @@ const entities = new Entities();
 module.exports = {
   newTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 2) {
-      message.channel.send('Arf-arf!\nPlease teach me as follows: !newTrick [command] [whatToSay]');
+      Utils.sendMessage(db, message, 'Arf-arf!\nPlease teach me as follows: !newTrick [command] [whatToSay]');
       return;
     }
     const trickName = userArgs[0].toLowerCase();
@@ -27,24 +27,24 @@ module.exports = {
         col.save(doc);
       }
     });
-    message.channel.send("Successfully teached new trick!\nWhen you say: !" + trickName + ", I Say:");
-    message.channel.send(entities.decode(whatToSay));
+    Utils.sendMessage(db, message, "Successfully teached new trick!\nWhen you say: !" + trickName + ", I Say:");
+    Utils.sendMessage(db, message, entities.decode(whatToSay));
   },
   forgetTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 1) {
-      message.channel.send('Arf-arf!\nPlease un-teach me as follows: !forgetTrick [command]');
+      Utils.sendMessage(db, message, 'Arf-arf!\nPlease un-teach me as follows: !forgetTrick [command]');
       return;
     }
     const col = db.collection("tricks");
     await col.deleteOne({ name: userArgs[0] });
-    message.channel.send("Trick forgotten");
+    Utils.sendMessage(db, message, "Trick forgotten");
   },
   scanChannels: async function (message, db, bot, trickArgs, userArgs) {
     // Find all channels that are listed in tricks
     if (userArgs && userArgs.length >= 1) {
       const ch = userArgs[0];
       const message0 = "Processing Channel Id: " + ch;
-      Utils.log(message, message0);
+      Utils.log(null, message, message0);
       processChannel(db, bot, message, ch);
       return;
     }
@@ -63,9 +63,9 @@ module.exports = {
 
       channelIds.forEach(ch => {
         const text = "Processing Channel Id: " + ch;
-        Utils.log(message, text);
+        Utils.log(null, message, text);
         if (message) {
-          message.channel.send(text);
+          Utils.sendMessage(db, message, text);
         }
         processChannel(db, bot, message, ch);
       });
@@ -80,9 +80,9 @@ async function processChannel(db, bot, message, channelId) {
   let counter = 0;
   if (!channel) {
     const text = "Channel does not exist on this Server. Change server and run command again:" + channelId;
-    Utils.log(message, text);
+    Utils.log(null, message, text);
     if (message) {
-      message.channel.send(text);
+      Utils.sendMessage(db, message, text);
     }
     return;
   }
@@ -119,5 +119,5 @@ async function processChannel(db, bot, message, channelId) {
     lastMessageIdProcessed = lastMessageId;
   } while (true);
   const message1 = "Processed " + counter + " new messages for channel" + channelId;
-  Utils.log(message, message1);
+  Utils.log(null, message, message1);
 }

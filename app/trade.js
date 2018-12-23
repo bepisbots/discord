@@ -8,7 +8,7 @@ module.exports = {
     let coins = params['coins'];
 
     if (user.coins < coins) {
-      message.channel.send(Utils.getString("notEnoughCoins")
+      Utils.sendMessage(db, message, Utils.getString("notEnoughCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -27,7 +27,7 @@ module.exports = {
     const text = Utils.getString(won ? "flipCoinWonMessage" : "flipCoinLostMessage")
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{totalCoins}", coins)
-    message.channel.send(text);
+    Utils.sendMessage(db, message, text);
   },
   giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
@@ -41,7 +41,7 @@ module.exports = {
     }
 
     if (sourceUser.coins < coins) {
-      message.channel.send(Utils.getString("notEnoughCoins")
+      Utils.sendMessage(db, message, Utils.getString("notEnoughCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -60,7 +60,7 @@ module.exports = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.greyDiscord)
       .setDescription(text);
-    message.channel.send({ embed });
+    Utils.sendMessage(db, message, { embed });
   },
   createCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
@@ -79,7 +79,7 @@ module.exports = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.greyDiscord)
       .setDescription(text);
-    message.channel.send({ embed });
+    Utils.sendMessage(db, message, { embed });
   },
   assign: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userTag'];
@@ -89,7 +89,7 @@ module.exports = {
     posts.findOne({ title: itemTitle }, { limit: 1 }, function (err, catched) {
       if (err) return;
       if (!catched) {
-        message.channel.send("Title not found in channel. Make sure title is exact");
+        Utils.sendMessage(db, message, "Title not found in channel. Make sure title is exact");
         return;
       }
       const col = db.collection("users");
@@ -112,7 +112,7 @@ module.exports = {
         .setColor(Utils.hexColors.greyDiscord)
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
-      message.channel.send({ embed });
+      Utils.sendMessage(db, message, { embed });
     });
   },
   tradeShop: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -139,7 +139,7 @@ module.exports = {
         id++;
       });
       const title = Utils.getString("shopTitle") + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
-      message.channel.send({
+      Utils.sendMessage(db, message, {
         embed: {
           color: Utils.hexColors.yellow,
           title: title,
@@ -151,7 +151,7 @@ module.exports = {
   tradeUnSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 2) {
-      message.channel.send(Utils.getString("unSellError")
+      Utils.sendMessage(db, message, Utils.getString("unSellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -173,21 +173,21 @@ module.exports = {
 
     const shopCol = db.collection("shop");
     await shopCol.deleteOne({ userId: message.author.id, itemId: key });
-    message.channel.send(Utils.getString("unSellSuccess")
+    Utils.sendMessage(db, message, Utils.getString("unSellSuccess")
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">"));
   },
   tradeSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 3) {
-      message.channel.send(Utils.getString("sellError")
+      Utils.sendMessage(db, message, Utils.getString("sellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
     const coins = parseInt(cmdArgs[2]);
     if (!coins || coins <= 0 || coins > 1000) {
-      message.channel.send(Utils.getString("sellErrorCoins")
+      Utils.sendMessage(db, message, Utils.getString("sellErrorCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -218,7 +218,7 @@ module.exports = {
       item: item.content,
       coins: parseInt(coins)
     });
-    message.channel.send(Utils.getString("sellSuccess")
+    Utils.sendMessage(db, message, Utils.getString("sellSuccess")
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
     );
@@ -229,7 +229,7 @@ module.exports = {
         .setColor(Utils.hexColors.red)
         .setDescription(Utils.getString("buyError")
           .replace("{userTag}", "<@" + message.author.id + ">"));
-      message.channel.send({ embed });
+      Utils.sendMessage(db, message, { embed });
       return;
     }
     // find item in inventory
@@ -244,7 +244,7 @@ module.exports = {
         .setColor(Utils.hexColors.red)
         .setDescription(Utils.getString("buyNotEnoughCoins")
           .replace("{userTag}", "<@" + message.author.id + ">"));
-      message.channel.send({ embed });
+      Utils.sendMessage(db, message, { embed });
       return;
     }
     const itemId = shopItem.itemId;
@@ -285,7 +285,7 @@ module.exports = {
       .replace("{paidCoins}", shopItem.coins)
       .replace("{itemName}", Utils.removeUrls((shopItem.item)));
     buyMessage = Utils.replaceTemplates(buyMessage, message, null);
-    message.channel.send(buyMessage);
+    Utils.sendMessage(db, message, buyMessage);
   },
   tradeGive: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userRecord'];
@@ -296,7 +296,7 @@ module.exports = {
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
-      message.channel.send(Utils.getString("giveAwayErrorShop")
+      Utils.sendMessage(db, message, Utils.getString("giveAwayErrorShop")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -340,7 +340,7 @@ module.exports = {
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{userTagReceiver}", "<@" + (targetUser ? targetUser.userId : "") + ">");
-    message.channel.send(textMessage);
+    Utils.sendMessage(db, message, textMessage);
   },
   trade: async function (message, db, bot, trickArgs, userArgs, params) {
     const userRecord = params['userRecord'];
@@ -352,7 +352,7 @@ module.exports = {
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
-      message.channel.send(Utils.getString("tradeErrorShop")
+      Utils.sendMessage(db, message, Utils.getString("tradeErrorShop")
         .replace("{userTag}", "<@" + userRecord.userId + ">"));
       return;
     }
@@ -371,7 +371,7 @@ module.exports = {
         .replace("{itemName2}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + targetUser.userId + ">")
         .replace("{userTagReceiver}", "<@" + userRecord.userId + ">");
-      message.channel.send(textMessage);
+      Utils.sendMessage(db, message, textMessage);
       return;
     }
 
@@ -384,13 +384,13 @@ module.exports = {
       if (!that.pendingTrades) that.pendingTrades = {};
       const tradeIdx = userRecord.userId + "-" + targetUser.userId;
       that.pendingTrades[tradeIdx] = { key: itemKey, item: item };
-      message.channel.send(Utils.getString("tradeMessageAccepted")
+      Utils.sendMessage(db, message, Utils.getString("tradeMessageAccepted")
         .replace("{itemName}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + userRecord.userId + ">")
         .replace("{userTagReceiver}", "<@" + targetUser.userId + ">"));
     }
 
-    const msg = await message.channel.send(textMessage);
+    const msg = await Utils.sendMessage(db, message, textMessage);
 
     const reactionFilter = function (reaction, user) {
       return user.id === targetUser.userId &&
@@ -415,7 +415,7 @@ module.exports = {
     let text = Utils.getString("invShowTotalCoins")
       .replace("{coins}", userRecord.coins || 0)
       .replace("{userTag}", "<@" + userId + ">");
-    message.channel.send(text);
+    Utils.sendMessage(db, message, text);
   }
 };
 
