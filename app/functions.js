@@ -83,6 +83,13 @@ const FUNCTIONS = {
     setupParams: {},
     userParams: { trickName: {} }
   },
+  "GENERATE_INVITE": {
+    fn: General.generateInvite,
+    category: CATEGORIES.General,
+    help: Utils.getString("generateInviteHelp"),
+    setupParams: { channelId: {} },
+    userParams: {}
+  },
   "LIST_TRICKS": {
     fn: General.listTricks,
     category: CATEGORIES.General,

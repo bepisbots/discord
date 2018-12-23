@@ -1,5 +1,5 @@
-const Functions = require('./functions');
 const Utils = require('./utils');
+const Discord = require('discord.js');
 
 module.exports = {
   randomPost: async function (message, db, bot, trickArgs) {
@@ -7,6 +7,33 @@ module.exports = {
     Utils.getRandomMessage(db, channelId, (chosenMessage) => {
       message.channel.send(chosenMessage.content);
     });
+  },
+  generateInvite: async function (message, db, bot, trickArgs, userArgs, params, fns, cats) {
+    let userRecord = params['userRecord'];
+    const channelId = trickArgs[1];
+
+    if (userRecord.inviteLink) {
+      message.channel.send(Utils.getString("generateInvite")
+        .replace("{userTag}", "<@" + userRecord.userId + ">")
+        .replace("{inviteLink}", userRecord.inviteLink.url));
+      return;
+    }
+
+    const channel = bot.channels.get(channelId);
+    if (!channel.permissionsFor(message.member).has(Discord.Permissions.FLAGS.CREATE_INSTANT_INVITE)) {
+      message.channel.send("Bot missing permission: CREATE_INSTANT_INVITE on channel '" + channel.name
+        + "'\nPlease ask admin to add permission to bot.");
+      return;
+    }
+
+    channel.createInvite({ maxAge: 0, unique: true }).then(link => {
+      userRecord.inviteLink = { url: link.url, code: link.code };
+      db.collection("users").save(userRecord);
+      message.channel.send(Utils.getString("generateInvite")
+        .replace("{userTag}", "<@" + userRecord.userId + ">")
+        .replace("{inviteLink}", userRecord.inviteLink.url));
+    });
+
   },
   listTricks: async function (message, db, bot, trickArgs, userArgs, params, fns, cats) {
     const pageNumber = params['pageNumber'];
@@ -193,7 +220,7 @@ function getCommandHelpFormat(command, functionParameters) {
   let msg = "**Use as follows:**\n" + command;
   Object.keys(functionParameters).forEach(paramName => {
     let paramHelp = Utils.getString(paramName);
-    paramHelp = paramHelp ? paramHelp: paramName;
+    paramHelp = paramHelp ? paramHelp : paramName;
     if (functionParameters[paramName].isOptional) {
       msg += " [" + paramHelp + "]";
     } else {
