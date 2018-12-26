@@ -116,6 +116,7 @@ module.exports = {
     return isAdmin;
   },
   isInAnyRole: function (db, message, roles) {    
+    if (!roles) roles = '';
     let rolesArray = roles.split(",");
     // if (this.isAdmin(message)) {
      // return true;
