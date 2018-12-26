@@ -112,7 +112,7 @@ module.exports = {
       col.save(userRecord);
 
       const text = Utils.getString("giftSuccessMessage")
-        .replace("{userTag}", "<@" + message.author.id + ">")
+        .replace("{userTag}", "<@" + userRecord.userId + ">")
         .replace("{itemName}", Utils.getItenName(catched))
       const embed = new Discord.RichEmbed()
         .setColor(Utils.hexColors.greyDiscord)
