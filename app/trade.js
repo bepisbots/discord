@@ -78,7 +78,7 @@ module.exports = {
     usrCol.save(user);
 
     const text = Utils.getString("giveCoinsSuccessMessage")
-      .replace("{userTag}", "<@" + message.author.id + ">")
+      .replace("{userTag}", "<@" + user.userId + ">")
       .replace("{totalCoins}", user.coins)
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.greyDiscord)
