@@ -115,8 +115,8 @@ module.exports = {
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;
   },
-  isInAnyRole: function (db, message, roles) {    
-    if (!roles) roles = '';
+  isInAnyRole: function (db, message, roles) {        
+    if (!roles) return true;
     let rolesArray = roles.split(",");
     // if (this.isAdmin(message)) {
      // return true;
