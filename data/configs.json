@@ -62,8 +62,10 @@
             "giveCoinsHelp": "Give away bepis to another user",
             "createCoinsHelp": "Create bepis and add them to a user",
             "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>",
-            "flipCoinWonMessage": ".        _------_\n.   /                 \\\n.  |    BEPIS    |\n.   \\                 /\n.      '''------'''\n\n**{userTag}**, you got **{totalCoins}** bepis!",
-            "flipCoinLostMessage": ".        _------_\n.   /                 \\\n.  |   BOOPIS    |\n.   \\                 /\n.      '''------'''\n**{userTag}**, you lost **{totalCoins}** bepis. Try again?"
+            "flipCoinBepisMessage": ".        _------_\n.   /                 \\\n.  |    BEPIS    |\n.   \\                 /\n.      '''------'''\n\n",
+            "flipCoinWonMessage": "**{userTag}**, you got **{totalCoins}** bepis!",
+            "flipCoinBoopisMessage": ".        _------_\n.   /                 \\\n.  |   BOOPIS    |\n.   \\                 /\n.      '''------'''\n\n",
+            "flipCoinLostMessage": "**{userTag}**, you lost **{totalCoins}** bepis!"            
         }
     },
     {
@@ -72,17 +74,17 @@
         "value": [
             {
                 "symbol": "💫",
-                "scarcity": 5,
+                "scarcity": 3,
                 "giveAwayValue": 7000
             },
             {
                 "symbol": "🌟",
-                "scarcity": 4,
+                "scarcity": 2,
                 "giveAwayValue": 2000
             },
             {
                 "symbol": "⭐",
-                "scarcity": 3,
+                "scarcity": 1,
                 "giveAwayValue": 500
             }
         ]

@@ -218,7 +218,8 @@ const FUNCTIONS = {
     help: Utils.getString("tradeFlipCoinHelp"),
     setupParams: {},
     userParams: {
-      coins: {}
+      coins: {},
+      guess: {}
     }
   },
   "ASSIGN_INVENTORY": {
@@ -264,6 +265,14 @@ const FUNCTIONS = {
 };
 
 const PARAMETERS = {
+  guess: async function (message, db, bot, arg) {
+    arg = arg.toUpperCase().trim();
+    if (arg !== 'BEPIS' && arg !== 'BOOPIS' && arg !== 'BE' && arg !== 'BO'){
+      throw new Error("Enter guess as BEPIS (BE) or BOOPIS (BO)");
+    }
+    arg = arg.substr(0, 2);
+    return arg;
+  },
   roles: async function (message, db, bot, arg) {
     // TODO: validate role
     return arg;

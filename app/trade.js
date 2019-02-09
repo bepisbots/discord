@@ -6,6 +6,7 @@ module.exports = {
   flipCoin: async function (message, db, bot, trickArgs, userArgs, params) {
     const user = params['userRecord'];
     let coins = params['coins'];
+    let guess = params['guess'];
 
     if (user.coins < coins) {
       Utils.sendMessage(db, message, Utils.getString("notEnoughCoins")
@@ -15,7 +16,8 @@ module.exports = {
     if (!user.coins)
       user.coins = coins;
 
-    let won = Math.random() >= 0.5;
+    let random = Math.random();
+    let won = (random >= 0.5 && guess === 'BE') || (random < 0.5 && guess === 'BO');
     if (won) {
       user.coins += coins;
     } else {
@@ -24,7 +26,8 @@ module.exports = {
     const usrCol = db.collection("users");
     usrCol.save(user);
 
-    const text = Utils.getString(won ? "flipCoinWonMessage" : "flipCoinLostMessage")
+    let text = Utils.getString(random >= 0.5 ? "flipCoinBepisMessage" : "flipCoinBoopisMessage");
+    text += Utils.getString(won ? "flipCoinWonMessage": "flipCoinLostMessage")
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{totalCoins}", coins)
     Utils.sendMessage(db, message, text);
@@ -307,7 +310,7 @@ module.exports = {
       return;
     }
 
-    let greatestCoinsValue = 10; // Default value
+    let greatestCoinsValue = 3; // Default value
     Utils.getConfigs().symbols.forEach(entry => {
       if (item.content.indexOf(entry.symbol) >= 0 && greatestCoinsValue < entry.giveAwayValue) {
         greatestCoinsValue = parseInt(entry.giveAwayValue);
