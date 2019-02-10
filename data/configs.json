@@ -64,10 +64,11 @@
             "giveCoinsHelp": "Give away bepis to another user",
             "createCoinsHelp": "Create bepis and add them to a user",
             "giveCoinsSuccessMessage": "**{userTag}** now has {totalCoins} bepis <:bepis:466777977179602996>",
-            "flipCoinBepisMessage": ".        _------_\n.   /                 \\\n.  |    BEPIS    |\n.   \\                 /\n.      '''------'''\n\n",
+            "flipCoinBepisMessage": "https://media.discordapp.net/attachments/500746690240970772/544256158697914370/bepisflip.gif\n\n",
             "flipCoinWonMessage": "**{userTag}**, you got **{totalCoins}** bepis!",
-            "flipCoinBoopisMessage": ".        _------_\n.   /                 \\\n.  |   BOOPIS    |\n.   \\                 /\n.      '''------'''\n\n",
-            "flipCoinLostMessage": "**{userTag}**, you lost **{totalCoins}** bepis!"            
+            "flipCoinBoopisMessage": "https://cdn.discordapp.com/attachments/500746690240970772/544256205678313492/boopisflip.gif\n\n",
+            "flipCoinLostMessage": "**{userTag}**, you lost **{totalCoins}** bepis!",
+            "tradeDefaultValue": "4"
         }
     },
     {

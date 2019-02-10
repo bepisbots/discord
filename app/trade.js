@@ -26,11 +26,16 @@ module.exports = {
     const usrCol = db.collection("users");
     usrCol.save(user);
 
-    let text = Utils.getString(random >= 0.5 ? "flipCoinBepisMessage" : "flipCoinBoopisMessage");
-    text += Utils.getString(won ? "flipCoinWonMessage": "flipCoinLostMessage")
+    let image = Utils.getString(random >= 0.5 ? "flipCoinBepisMessage" : "flipCoinBoopisMessage");
+    let text = Utils.getString(won ? "flipCoinWonMessage": "flipCoinLostMessage")
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{totalCoins}", coins)
-    Utils.sendMessage(db, message, text);
+
+    const embed = new Discord.RichEmbed()
+      .setColor(Utils.hexColors.brownOrange)
+      .setDescription(text)
+      .setImage(image);
+    Utils.sendMessage(db, message, { embed });
   },
   giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
@@ -310,7 +315,7 @@ module.exports = {
       return;
     }
 
-    let greatestCoinsValue = 3; // Default value
+    let greatestCoinsValue = parseInt(Utils.getString("tradeDefaultValue")); // Default value
     Utils.getConfigs().symbols.forEach(entry => {
       if (item.content.indexOf(entry.symbol) >= 0 && greatestCoinsValue < entry.giveAwayValue) {
         greatestCoinsValue = parseInt(entry.giveAwayValue);
