@@ -29,7 +29,7 @@
             "catchWaitMessage": "🚫 **{userTag}**, you need to wait another **{hours} hours, {minutes} minutes, and {seconds} seconds** before catching another Shibe",
             "generateInvite": "**{userTag}**, please use the following link to invite your frens:\n{inviteLink}",
             "catchSuccessMessage": "Congrats **{userTag}**, you've caught a(n) **{itemName}**!",
-            "eventFailCatchMessage": "**{userTag}**, you've caught a(n) **{itemName}**, but you already had it. Try again.",
+            "eventFailCatchMessage": "**{userTag}**, you've already participated in this event.",
             "giftSuccessMessage": " **{itemName}** has been successfuly assigned to **{userTag}**",
             "giveAwayError": "**{userTag}**, please specify the item number from your inventory",
             "giveAwayMessage": "**{userTag}**, you've received {receivedCoins} bepis for **{itemName}**. Now you have {totalCoins} bepis <:bepis:466777977179602996>!",

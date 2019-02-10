@@ -288,27 +288,30 @@ const mod = {
         };
         col.insertOne(userRecord);
       }
-      // Check user has waited hours
-      if (userRecord.inventory[igmId]) {
+      if (!userRecord.events) {
+        userRecord.events = [];
+      }
+      if (userRecord.events.find(e => e === channelId)) {
         let text = Utils.getString("eventFailCatchMessage")
           .replace("{userTag}", "<@" + message.author.id + ">")
           .replace("{itemName}", Utils.getItenName(catched))
         Utils.sendMessage(db, message, text);
-      } else {
-        userRecord.inventory[igmId] = {
-          content: catched.content,
-          quantity: 1
-        };
-        col.save(userRecord);
-        let text = Utils.getString("catchSuccessMessage")
-          .replace("{userTag}", "<@" + message.author.id + ">")
-          .replace("{itemName}", Utils.getItenName(catched))
-        const embed = new Discord.RichEmbed()
-          .setColor(Utils.hexColors.greyDiscord)
-          .setDescription(text)
-          .setImage(Utils.getUrl(catched.content));
-        Utils.sendMessage(db, message, { embed });
+        return;
       }
+      userRecord.events.push(channelId);
+      userRecord.inventory[igmId] = {
+        content: catched.content,
+        quantity: 1
+      };
+      col.save(userRecord);
+      let text = Utils.getString("catchSuccessMessage")
+        .replace("{userTag}", "<@" + message.author.id + ">")
+        .replace("{itemName}", Utils.getItenName(catched))
+      const embed = new Discord.RichEmbed()
+        .setColor(Utils.hexColors.greyDiscord)
+        .setDescription(text)
+        .setImage(Utils.getUrl(catched.content));
+      Utils.sendMessage(db, message, { embed });
     });
   },
   invNick: async function (message, db, bot, trickArgs, userArgs, params) {
