@@ -111,6 +111,13 @@ const FUNCTIONS = {
     setupParams: { channelId: {} },
     userParams: {}
   },
+  "EVENT": {
+    fn: Inventory.invEvent,
+    category: CATEGORIES.Inventory,
+    help: Utils.getString("eventHelp"),
+    setupParams: { channelId: {} },
+    userParams: {}
+  },
   "LIST_INVENTORY": {
     fn: Inventory.invList,
     category: CATEGORIES.Inventory,

@@ -38,13 +38,13 @@ const mod = {
     }, { limit: 1 }).then(async fuseRecord => {
       if (!fuseRecord) {
         Utils.sendMessage(db, message, "No fuse formula found for **"
-         + item1Name + "** and **" + item2Name + "**. Keep trying!");
+          + item1Name + "** and **" + item2Name + "**. Keep trying!");
         return;
       }
       let fuseParts = fuseRecord.title.split(';');
       if (fuseParts.length < 3) {
-        Utils.sendMessage(db, message, "Error found in fuse formula for **" 
-        + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
+        Utils.sendMessage(db, message, "Error found in fuse formula for **"
+          + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
         return;
       }
       fuseParts = fuseParts.map(part => part.trim());
@@ -54,7 +54,7 @@ const mod = {
       let fusedItem = await posts.findOne({ title: fuseParts[2] }, { limit: 1 });
       if (!fusedItem) {
         Utils.sendMessage(db, message, "Fused item not found: Error found in fuse formula for **"
-         + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
+          + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
         return;
       }
       // Make the assignment to user
@@ -77,7 +77,7 @@ const mod = {
       }
       db.collection("users").save(userRecord);
       Utils.sendMessage(db, message, "Congratulations! You earned **" + fusedItem.title
-       + "** by combining **" + item1Name + "** and **" + item2Name + "**");
+        + "** by combining **" + item1Name + "** and **" + item2Name + "**");
     });
   },
   invTrash: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -269,6 +269,46 @@ const mod = {
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
       Utils.sendMessage(db, message, { embed });
+    });
+  },
+  invEvent: async function (message, db, bot, trickArgs, userArgs, params) {
+    // Get user entry
+    const channelId = trickArgs[1];
+    if (!channelId) return;
+    const col = db.collection("users");
+    let userRecord = params['userRecord'];
+    Utils.getRandomMessage(db, channelId, (catched) => {
+      const igmId = catched._id.toString();
+      if (!userRecord) {
+        userRecord = {
+          userId: message.author.id,
+          username: message.author.username,
+          createdTimestamp: message.createdTimestamp,
+          inventory: {},
+        };
+        col.insertOne(userRecord);
+      }
+      // Check user has waited hours
+      if (userRecord.inventory[igmId]) {
+        let text = Utils.getString("eventFailCatchMessage")
+          .replace("{userTag}", "<@" + message.author.id + ">")
+          .replace("{itemName}", Utils.getItenName(catched))
+        Utils.sendMessage(db, message, text);
+      } else {
+        userRecord.inventory[igmId] = {
+          content: catched.content,
+          quantity: 1
+        };
+        col.save(userRecord);
+        let text = Utils.getString("catchSuccessMessage")
+          .replace("{userTag}", "<@" + message.author.id + ">")
+          .replace("{itemName}", Utils.getItenName(catched))
+        const embed = new Discord.RichEmbed()
+          .setColor(Utils.hexColors.greyDiscord)
+          .setDescription(text)
+          .setImage(Utils.getUrl(catched.content));
+        Utils.sendMessage(db, message, { embed });
+      }
     });
   },
   invNick: async function (message, db, bot, trickArgs, userArgs, params) {
