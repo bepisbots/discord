@@ -55,7 +55,10 @@ module.exports = {
 
       let channelIds = allTricks
         .map(v => v.say.trim().split(" "))
-        .filter(parts => parts.length > 1 && (parts[0] === "RANDOM_POST" || parts[0] === "CATCH_INVENTORY"))
+        .filter(parts => parts.length > 1 && (parts[0] === "RANDOM_POST" 
+        || parts[0] === "CATCH_INVENTORY" 
+        || parts[0] === "EVENT" 
+        || parts[0] === "FUSE_INVENTORY"))
         .map(parts => parts[1])
         .filter(ch => ch);
       // dedup 

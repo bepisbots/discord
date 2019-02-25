@@ -76,6 +76,9 @@ module.exports = {
     const col = db.collection("posts");
     const that = this;
     col.countDocuments({ channel: channelId }, async function (err, totalMsgs) {
+      if (!totalMsgs){
+        throw new Error("No entries found in channel. Please scan channel");
+      }
       let count = 0;
       let doc;
       let greatestScarcity = 0;
