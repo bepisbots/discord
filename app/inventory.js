@@ -245,11 +245,17 @@ const mod = {
             .replace("{minutes}", minutes)
             .replace("{seconds}", seconds);
           Utils.sendMessage(db, message, text);
-          // if (!Utils.isAdmin(message)) {
           return;
-          // }
         }
       }
+      // Check if it caught a command to execute
+      const CATCH_INVENTORY = Utils.getConfig('prefix') + "CATCH_INVENTORY";
+      if (catched.content.startsWith(CATCH_INVENTORY)) {
+        trickArgs[1] = catched.content.substr(CATCH_INVENTORY.length).trim();
+        mod.invCatch(message, db, bot, trickArgs, userArgs, params);
+        return;
+      }
+
       if (userRecord.inventory[igmId]) {
         userRecord.inventory[igmId].quantity++;
       } else {
