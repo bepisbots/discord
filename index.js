@@ -47,9 +47,9 @@ const main = function () {
         disabledEvents: ['TYPING_START']
     });
     let token = Utils.getConfig('token');
-    if (Utils.getConfig("devMode") === true){
-        token = Utils.getConfig('tokenDev');
-    }
+    // if (Utils.getConfig("devMode") === true){
+    //     token = Utils.getConfig('tokenDev');
+    // }
     bot.login(token);
 
     bot.on("ready", () => {

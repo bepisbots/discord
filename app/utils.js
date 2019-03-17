@@ -52,6 +52,10 @@ module.exports = {
     return this.getConfigs().strings[stringId];
   },
   getConfig: function (name) {
+
+    if (config["devMode"] === true && config[name + "Dev"]){
+      return config[name + "Dev"];
+    }
     if (config && config[name]) {
       return config[name];
     } else if (process && process.env && process.env[name]) {

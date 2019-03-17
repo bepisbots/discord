@@ -39,15 +39,16 @@ module.exports = {
     await col.deleteOne({ name: userArgs[0] });
     Utils.sendMessage(db, message, "Trick forgotten");
   },
-  scanChannels: async function (message, db, bot, trickArgs, userArgs) {
+  scanChannels: async function (message, db, bot, trickArgs, userArgs, params, FUNCTIONS) {
     // Find all channels that are listed in tricks
     if (userArgs && userArgs.length >= 1) {
       const ch = userArgs[0];
-      const message0 = "Processing Channel Id: " + ch;
-      Utils.log(null, message, message0);
       processChannel(db, bot, message, ch);
       return;
     }
+    const functionsWithChannelId = Object.keys(FUNCTIONS)
+      .filter(name => FUNCTIONS[name].setupParams.channelId);
+
     const col = db.collection("tricks");
     col.find().toArray(function (err, allTricks) {
       if (err) return;
@@ -55,21 +56,13 @@ module.exports = {
 
       let channelIds = allTricks
         .map(v => v.say.trim().split(" "))
-        .filter(parts => parts.length > 1 && (parts[0] === "RANDOM_POST" 
-        || parts[0] === "CATCH_INVENTORY" 
-        || parts[0] === "EVENT" 
-        || parts[0] === "FUSE_INVENTORY"))
+        .filter(parts => parts.length > 1 && functionsWithChannelId.includes(parts[0]))
         .map(parts => parts[1])
         .filter(ch => ch);
       // dedup 
       channelIds = channelIds.filter((item, pos) => channelIds.indexOf(item) === pos);
 
       channelIds.forEach(ch => {
-        const text = "Processing Channel Id: " + ch;
-        Utils.log(null, message, text);
-        if (message) {
-          Utils.sendMessage(db, message, text);
-        }
         processChannel(db, bot, message, ch);
       });
       // For each channel, scan and parse the contents
@@ -78,15 +71,15 @@ module.exports = {
 };
 
 async function processChannel(db, bot, message, channelId) {
+  const textProcessing = "Processing Channel: " + channelId;
+  Utils.sendMessage(db, message, textProcessing);
+
   const channel = bot.channels.get(channelId);
   const col = db.collection("posts");
   let counter = 0;
   if (!channel) {
-    const text = "Channel does not exist on this Server. Change server and run command again:" + channelId;
-    Utils.log(null, message, text);
-    if (message) {
-      Utils.sendMessage(db, message, text);
-    }
+    const text = "Failed accessing channel " + channelId + ". Make sure the bot has read rights on the channel and try again:";
+    Utils.sendMessage(db, message, text);
     return;
   }
   let lastMessageId;
@@ -96,7 +89,7 @@ async function processChannel(db, bot, message, channelId) {
       messages.array()
         .filter(m => m.content)
         .forEach(async (m) => {
-          await col.findOne({ channel: channelId, content: m.content.trim() }, { limit: 1 }, function (err, doc) {
+          await col.findOne({ channel: channelId, createdTimestamp: m.createdTimestamp }, { limit: 1 }, function (err, doc) {
             if (err) return;
             const message = {
               channel: channelId,
@@ -111,6 +104,10 @@ async function processChannel(db, bot, message, channelId) {
             if (!doc) {
               col.insertOne(message);
               counter++;
+            } else if (doc.content.trim() != m.content.trim()) {
+              Utils.sendMessage(db, message, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
+              doc.content = m.content.trim();
+              col.save(doc);
             }
           });
           lastMessageId = m.id;
@@ -121,6 +118,6 @@ async function processChannel(db, bot, message, channelId) {
     }
     lastMessageIdProcessed = lastMessageId;
   } while (true);
-  const message1 = "Processed " + counter + " new messages for channel" + channelId;
-  Utils.log(null, message, message1);
+  const textProcessed = "Processed " + counter + " new messages for channel" + channelId;
+  Utils.sendMessage(db, message, textProcessed);
 }
