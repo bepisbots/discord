@@ -13,6 +13,12 @@ String.prototype.replaceAll = function (search, replacement) {
     return target.replace(new RegExp(search, 'g'), replacement);
 };
 
+// process.on('uncaughtException', function (err) {
+//     console.error((new Date).toUTCString() + ' uncaughtException:', err.message)
+//     console.error(err.stack)
+//     process.exit(1)
+//   })
+
 // Initialize connection once
 let _db;
 const getDb = function (callback) {

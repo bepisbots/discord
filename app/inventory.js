@@ -86,15 +86,36 @@ const mod = {
     let itemNumber = params['inventoryItemNumber'] - 1;
     const item = Utils.getInventoryItemFromNumber(userRecord, itemNumber);
 
-    if (item.quantity <= 1) {
-      delete userRecord.inventory[key];
-    } else {
-      item.quantity--;
-    }
-    const userCol = db.collection("users");
-    userCol.save(userRecord);
+    const deleteItem = function () {
+      if (item.quantity <= 1) {
+        delete userRecord.inventory[key];
+      } else {
+        item.quantity--;
+      }
+      const userCol = db.collection("users");
+      userCol.save(userRecord);
 
-    Utils.sendMessage(db, message, Utils.getItenName(item) + " has been removed from your inventory!");
+      Utils.sendMessage(db, message, Utils.getItenName(item) + " has been removed from your inventory!");
+    };
+
+    const validateDeletion = async function () {
+      const textMessage = "Are you sure you want to delete item?\nYou have 30 seconds to react to this message using 🆗 to confirm"
+      const msg = await Utils.sendMessage(db, message, textMessage);
+      const reactionFilter = function (reaction, user) {
+        return user.id === userRecord.id &&
+          reaction.emoji.name === '🆗';
+      }
+
+      msg.awaitReactions(reactionFilter,
+        { max: 1, time: 30 * 1000, errors: ['time'] })
+        .then(() => deleteItem());
+    };
+    const foundSymbol = Utils.getConfigs().symbols.findOne(entry => item.content.indexOf(entry.symbol) >= 0);
+    if (foundSymbol) {
+      validateDeletion();
+    } else {
+      deleteItem();
+    }
   },
   invList: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry

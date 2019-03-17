@@ -27,7 +27,7 @@ module.exports = {
     usrCol.save(user);
 
     let image = Utils.getString(random >= 0.5 ? "flipCoinBepisMessage" : "flipCoinBoopisMessage");
-    let text = Utils.getString(won ? "flipCoinWonMessage": "flipCoinLostMessage")
+    let text = Utils.getString(won ? "flipCoinWonMessage" : "flipCoinLostMessage")
       .replace("{userTag}", "<@" + message.author.id + ">")
       .replace("{totalCoins}", coins)
 
@@ -302,11 +302,11 @@ module.exports = {
     Utils.sendMessage(db, message, buyMessage);
   },
   tradeGive: async function (message, db, bot, trickArgs, userArgs, params) {
-    let user = params['userRecord'];
+    let userRecord = params['userRecord'];
     const targetUser = params["userTag"];
     let itemNumber = params['inventoryItemNumber'] - 1;
-    const key = Utils.getInventoryItemKeyFromNumber(user, itemNumber);
-    const item = user.inventory[key];
+    const key = Utils.getInventoryItemKeyFromNumber(userRecord, itemNumber);
+    const item = userRecord.inventory[key];
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
@@ -316,45 +316,66 @@ module.exports = {
     }
 
     let greatestCoinsValue = parseInt(Utils.getString("tradeDefaultValue")); // Default value
+    let foundSymbol = false;
     Utils.getConfigs().symbols.forEach(entry => {
       if (item.content.indexOf(entry.symbol) >= 0 && greatestCoinsValue < entry.giveAwayValue) {
         greatestCoinsValue = parseInt(entry.giveAwayValue);
+        foundSymbol = true;
       }
     });
 
-    if (item.quantity <= 1) {
-      delete user.inventory[key];
-    } else {
-      item.quantity--;
-    }
-    if (!targetUser) {
-      if (!user.coins)
-        user.coins = greatestCoinsValue;
-      else
-        user.coins += greatestCoinsValue;
-    }
-
-    const usrCol = db.collection("users");
-    usrCol.save(user);
-
-    if (targetUser) {
-      if (targetUser.inventory[key]) {
-        targetUser.inventory[key].quantity++;
+    const trade = function () {
+      if (item.quantity <= 1) {
+        delete userRecord.inventory[key];
       } else {
-        targetUser.inventory[key] = {
-          content: item.content,
-          quantity: 1
-        };
+        item.quantity--;
       }
-      usrCol.save(targetUser);
+      if (!targetUser) {
+        if (!userRecord.coins)
+          userRecord.coins = greatestCoinsValue;
+        else
+          userRecord.coins += greatestCoinsValue;
+      }
+
+      const usrCol = db.collection("users");
+      usrCol.save(userRecord);
+
+      if (targetUser) {
+        if (targetUser.inventory[key]) {
+          targetUser.inventory[key].quantity++;
+        } else {
+          targetUser.inventory[key] = {
+            content: item.content,
+            quantity: 1
+          };
+        }
+        usrCol.save(targetUser);
+      }
+      let textMessage = (targetUser ? Utils.getString("donateMessage") : Utils.getString("giveAwayMessage"))
+        .replace("{receivedCoins}", greatestCoinsValue)
+        .replace("{totalCoins}", userRecord.coins)
+        .replace("{itemName}", Utils.getItenName(item))
+        .replace("{userTag}", "<@" + message.author.id + ">")
+        .replace("{userTagReceiver}", "<@" + (targetUser ? targetUser.userId : "") + ">");
+      Utils.sendMessage(db, message, textMessage);
+    };
+
+    if (!foundSymbol) {
+      trade();
+    } else {
+      const textMessage = "Are you sure you want to trade item for " + greatestCoinsValue + " bepis?\nYou have 30 seconds to react to this message using 🆗 to confirm"
+      const msg = await Utils.sendMessage(db, message, textMessage);
+      const reactionFilter = (reaction, user) =>
+        reaction.emoji.name === '🆗'
+        && user.id === userRecord.userId;
+
+      msg.awaitReactions(reactionFilter,
+        { max: 1, time: 30 * 1000, errors: ['time'] })
+        .then(collected =>
+          trade()
+        )
+        .catch(console.error);
     }
-    let textMessage = (targetUser ? Utils.getString("donateMessage") : Utils.getString("giveAwayMessage"))
-      .replace("{receivedCoins}", greatestCoinsValue)
-      .replace("{totalCoins}", user.coins)
-      .replace("{itemName}", Utils.getItenName(item))
-      .replace("{userTag}", "<@" + message.author.id + ">")
-      .replace("{userTagReceiver}", "<@" + (targetUser ? targetUser.userId : "") + ">");
-    Utils.sendMessage(db, message, textMessage);
   },
   trade: async function (message, db, bot, trickArgs, userArgs, params) {
     const userRecord = params['userRecord'];
@@ -413,7 +434,7 @@ module.exports = {
 
     msg.awaitReactions(reactionFilter,
       { max: 1, time: 60 * 1000 * 5, errors: ['time'] })
-      .then(collected => acceptedTrade());
+      .then(() => acceptedTrade());
   },
   showCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord;

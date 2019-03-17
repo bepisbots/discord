@@ -35,8 +35,8 @@ module.exports = {
   },
   sendMessage: function (db, message, text) {
     if (!message || !message.channel || !text) return;
-    message.channel.send(text);
     this.log(db, message, text);
+    return message.channel.send(text);
   },
   getConfigs: function () {
     if (this.configs) {
