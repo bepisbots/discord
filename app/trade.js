@@ -398,8 +398,10 @@ module.exports = {
       // Execute trade
       const tradeItem = that.pendingTrades[tradeIdx];
       delete that.pendingTrades[tradeIdx];
-      transferItem(db, targetUser, userRecord, tradeItem.key, tradeItem.item);
-      transferItem(db, userRecord, targetUser, itemKey, item);
+
+      const usrCol = db.collection("users");
+      transferItem(usrCol, targetUser, userRecord, tradeItem.key, tradeItem.item);
+      transferItem(usrCol, userRecord, targetUser, itemKey, item);
 
       let textMessage = Utils.getString("tradeMessageSuccess")
         .replace("{itemName1}", Utils.removeUrls(tradeItem.item.content))
@@ -454,14 +456,14 @@ module.exports = {
   }
 };
 
-const transferItem = function (db, sourceUser, targetUser, itemKey, item) {
+const transferItem = function (usrCol, sourceUser, targetUser, itemKey, item) {
   if (item.quantity <= 1) {
     delete sourceUser.inventory[itemKey];
   } else {
     item.quantity--;
   }
-  const usrCol = db.collection("users");
   usrCol.save(sourceUser);
+  //usrCol.update({_id: sourceUser._id}, sourceUser, {upsert: true});
 
   if (targetUser.inventory[itemKey]) {
     targetUser.inventory[itemKey].quantity++;
@@ -472,5 +474,6 @@ const transferItem = function (db, sourceUser, targetUser, itemKey, item) {
     };
   }
   usrCol.save(targetUser);
+  //usrCol.update({_id: targetUser._id}, targetUser, {upsert: true});
 }
 

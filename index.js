@@ -79,7 +79,7 @@ const main = function () {
         if (message.channel.type === 'dm') { // Direct Message
             return; //Optionally handle direct messages
         }
-        if (Utils.getConfig("devMode") === true && message.author.id !== Utils.getConfig("owner")){
+        if (Utils.getConfig("devMode") === true && !Utils.getConfig("owners").includes(message.author.id)) {
             return;
         }
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
