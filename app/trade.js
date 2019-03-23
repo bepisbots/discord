@@ -74,7 +74,7 @@ module.exports = {
   },
   createCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
-    let coins = params['coins'];
+    let coins = params['adminCoins'];
     const roles = trickArgs[1];
     if (!Utils.isInAnyRole(db, message, roles)) return;
 
