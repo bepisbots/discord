@@ -267,7 +267,7 @@ const FUNCTIONS = {
     category: CATEGORIES.Admin,
     help: Utils.getString("createCoinsHelp"),
     setupParams: { roles: {} },
-    userParams: { userTag: {}, coins: {} }
+    userParams: { userTag: {}, adminCoins: {} }
   },
 };
 
@@ -388,7 +388,7 @@ const PARAMETERS = {
   hexColor: async function (message, db, bot, arg) {
     return arg;
   },
-  coins: async function (message, db, bot, arg) {
+  adminCoins: async function (message, db, bot, arg) {
     if (isNaN(arg)) {
       throw new Error("Enter a numeric value");
     }
