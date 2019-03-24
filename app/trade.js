@@ -399,6 +399,16 @@ module.exports = {
       const tradeItem = that.pendingTrades[tradeIdx];
       delete that.pendingTrades[tradeIdx];
 
+      if (tradeItem.timestamp + (1000*60*60) < Date.now()){
+        Utils.sendMessage(db, message, "Trade offer expired");
+        return;
+      }
+
+      if (!targetUser.inventory[tradeItem.key] || userRecord.inventory[itemKey] ){
+        Utils.sendMessage(db, message, Utils.getString("tradeError"));
+        return;
+      }
+
       const usrCol = db.collection("users");
       transferItem(usrCol, targetUser, userRecord, tradeItem.key, tradeItem.item);
       transferItem(usrCol, userRecord, targetUser, itemKey, item);
@@ -420,7 +430,7 @@ module.exports = {
     const acceptedTrade = function () {
       if (!that.pendingTrades) that.pendingTrades = {};
       const tradeIdx = userRecord.userId + "-" + targetUser.userId;
-      that.pendingTrades[tradeIdx] = { key: itemKey, item: item };
+      that.pendingTrades[tradeIdx] = { key: itemKey, item: item, timestamp: Date.now() };
       Utils.sendMessage(db, message, Utils.getString("tradeMessageAccepted")
         .replace("{itemName}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + userRecord.userId + ">")
