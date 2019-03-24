@@ -404,7 +404,7 @@ module.exports = {
         return;
       }
 
-      if (!targetUser.inventory[tradeItem.key] || userRecord.inventory[itemKey] ){
+      if (!targetUser.inventory[tradeItem.key] || !userRecord.inventory[itemKey] ){
         Utils.sendMessage(db, message, Utils.getString("tradeError"));
         return;
       }
