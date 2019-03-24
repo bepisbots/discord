@@ -147,7 +147,7 @@ const mod = {
     let title;
     if (!params['noTitle']) {
       title = "**{userTag}'s Inventory**";
-      title = title.replace("{userTag}", userRecord.username);
+      title = title.replace("{userTag}", Utils.getDiscordUsername(bot, userRecord.userId));
     }
     if (!params['noPages'] && totalPages > 1)
       title += " Page " + (pageNumber + 1) + " of " + totalPages;

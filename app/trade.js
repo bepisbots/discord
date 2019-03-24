@@ -148,7 +148,7 @@ module.exports = {
         shopMessage += Utils.getString("shopListing")
           .replace("{id}", id)
           .replace("{itemName}", Utils.removeUrls(i.item))
-          .replace("{userName}", i.username)
+          .replace("{userName}", Utils.getDiscordUsername(bot, i.userId))
           .replace("{coins}", i.coins) + "\n";
         id++;
       });

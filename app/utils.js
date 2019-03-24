@@ -4,6 +4,18 @@ const dateformat = require('dateformat');
 const config = optionalRequire('../config.json') || {};
 
 module.exports = {
+  getDiscordUsername: function (bot, userId) {
+    if (!this.usernamesCache) {
+      this.usernamesCache = {}
+    }
+    let username = this.usernamesCache[userId];
+    if (username) { return username; }
+    const user = bot.users.find("id", userId);
+    if (!user) { return "noone"; }
+    username = user.username;
+    this.usernamesCache[userId] = username;
+    return username;
+  },
   log: function (db, message, text) {
     if (!message || !message.channel || !text) return;
     try {
@@ -53,7 +65,7 @@ module.exports = {
   },
   getConfig: function (name) {
 
-    if (config["devMode"] === true && config[name + "Dev"]){
+    if (config["devMode"] === true && config[name + "Dev"]) {
       return config[name + "Dev"];
     }
     if (config && config[name]) {
@@ -80,7 +92,7 @@ module.exports = {
     const col = db.collection("posts");
     const that = this;
     col.countDocuments({ channel: channelId }, async function (err, totalMsgs) {
-      if (!totalMsgs){
+      if (!totalMsgs) {
         throw new Error("No entries found in channel. Please scan channel");
       }
       let count = 0;
@@ -122,11 +134,11 @@ module.exports = {
     const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
     return isAdmin;
   },
-  isInAnyRole: function (db, message, roles) {        
+  isInAnyRole: function (db, message, roles) {
     if (!roles) return true;
     let rolesArray = roles.split(",");
     // if (this.isAdmin(message)) {
-     // return true;
+    // return true;
     //}
     if (rolesArray && Array.isArray(rolesArray)) {
       let isInARole = false;
