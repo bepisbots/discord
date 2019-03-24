@@ -36,7 +36,7 @@ module.exports = {
 
   },
   listTricks: async function (message, db, bot, trickArgs, userArgs, params, fns, cats) {
-    const pageNumber = params['pageNumber'];
+    //const pageNumber = params['pageNumber'];
     const col = db.collection("tricks");
     await col.find().toArray(function (err, allTricks) {
       if (err) return;
@@ -61,7 +61,7 @@ module.exports = {
 
       var helptext = "";
       var helpSection = "";
-      var currentPage = 1;
+      //var currentPage = 1;
       var currCharCount = 0;
       var lastTitle = "";
       var reachedTargetPage = false;
@@ -78,14 +78,15 @@ module.exports = {
 
         if ((currCharCount + line.length + title.length) > MAX_CHARS_PER_PAGE) {
           endHelpSection();
-          if (currentPage >= pageNumber) {
-            reachedTargetPage = true;
-            return false; // Returns false when it reached the target page
-          }
+          //if (currentPage >= pageNumber) {
+            //reachedTargetPage = true;
+            //return false; // Returns false when it reached the target page
+          //}
+          Utils.sendMessage(db, message, "```asciidoc\n" + helptext + "```");
           currCharCount = 0;
-          currentPage++;
+          //currentPage++;
           helptext = "";
-          helpSection = "";
+          //helpSection = "";
         }
         currCharCount += line.length;
         helpSection += line + "\n";
@@ -149,9 +150,18 @@ module.exports = {
       });
 
       if (isAdmin) {
+        let getListOfTricksPerFunction = function (fnName) {
+          const fnTricks = tricksByFn[fnName];
+          if (!fnTricks || fnTricks.length === 0) { return ""; }
+          const tricksList = fnTricks.map(t => "[" + t.name + "]")
+              .reduce((t1, t2) => t1 + " " + t2);
+          return (tricksList ? " " + tricksList: "");
+        }
+
         let functionsHelp = Object.keys(fns)
           .filter(fn => fns[fn].help)
-          .map(fn => fn + ": " + fns[fn].help);
+          .map(fn => fn + ": " + fns[fn].help +
+            getListOfTricksPerFunction(fn));
         for (helpIdx in functionsHelp) {
           if (!addLine("Programable Functions", functionsHelp[helpIdx])) {
             break;

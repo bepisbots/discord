@@ -170,7 +170,7 @@ const mod = {
       params['pageNumber'] = pageNumber;
       params['noTitle'] = pageNumber != 1;
       params['noPages'] = true;
-      mod.invList(message, db, bot, trickArgs, userArgs, params);
+      await mod.invList(message, db, bot, trickArgs, userArgs, params);
     }
   },
   invShow: async function (message, db, bot, trickArgs, userArgs, params) {

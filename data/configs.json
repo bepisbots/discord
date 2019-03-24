@@ -37,7 +37,7 @@
             "giveAwayErrorShop": "**{userTag}**, you can't give away items that are currently for sale in the shop",
             "tradeErrorShop": "**{userTag}**, you can't trade items that are currently for sale in the shop",
             "tradeError": "Could not trade items since one of the items is no longer available",
-            "nonFunctionHelp": "More Commands",
+            "nonFunctionHelp": "",
             "invColorHelp": "Changes color of inventory",
             "scanChannels": "Scans channel for new messages",
             "newTrick": "Teaches the bot a new command that uses a keyword to execute a function",
