@@ -315,6 +315,10 @@ module.exports = {
       return;
     }
 
+    if (message.author.id == targetUser.userId) {
+      return;
+    }
+
     let greatestCoinsValue = parseInt(Utils.getString("tradeDefaultValue")); // Default value
     let foundSymbol = false;
     Utils.getConfigs().symbols.forEach(entry => {
