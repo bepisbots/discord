@@ -315,7 +315,7 @@ module.exports = {
       return;
     }
 
-    if (message.author.id == targetUser.userId) {
+    if (targetUser && message.author.id == targetUser.userId) {
       return;
     }
 
