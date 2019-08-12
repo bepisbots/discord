@@ -129,10 +129,11 @@ module.exports = {
   },
   isAdmin: function (message) {
     if (this.getConfig("devMode") === true) return true;
-    if (message.author.id === this.getConfig("owner")) return true;
-    let perms = message.member.permissions;
-    const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
-    return isAdmin;
+    if (this.getConfig("owners").includes(message.author.id)) return true;
+    return false;
+    //let perms = message.member.permissions;
+    //const isAdmin = perms.has("ADMINISTRATOR"); // message.member.roles.find("name", "Admin") || message.member.roles.find("name", "Mod");
+    //return isAdmin;
   },
   isInAnyRole: function (db, message, roles) {
     if (!roles) return true;
