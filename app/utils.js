@@ -138,13 +138,13 @@ module.exports = {
   isInAnyRole: function (db, message, roles) {
     if (!roles) return true;
     let rolesArray = roles.split(",");
-    // if (this.isAdmin(message)) {
-    // return true;
-    //}
+    if (this.isAdmin(message)) {
+      return true;
+    }
     if (rolesArray && Array.isArray(rolesArray)) {
       let isInARole = false;
-      rolesArray.forEach(role => {
-        if (message.member.roles.find("name", role.replace("_", " "))) {
+      rolesArray.forEach(roleId => {
+        if (message.member.roles.find("id", roleId)) {
           isInARole = true;
         }
       });
