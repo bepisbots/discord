@@ -89,6 +89,7 @@ const main = function () {
             let server = bot.guilds.get(serverId);
             if (!server) { 
                 console.error("Failure loading server id: " + serverId);
+                console.log(serverIds);
                 continue; 
             }
             if (server.channels.get(message.channel.id)) {
