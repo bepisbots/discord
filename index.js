@@ -84,7 +84,8 @@ const main = function () {
         }
         var foundChannelInServer = false;
         let serverIds = Utils.getConfig('serverIds');
-        for (serverId of serverIds) {
+        for (serverIdx in serverIds) {
+            let serverId = serverIds[serverIdx];
             let server = bot.guilds.get(serverId);
             if (!server) { 
                 console.error("Failure loading server id: " + serverId);
