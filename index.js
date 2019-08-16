@@ -61,14 +61,14 @@ const main = function () {
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
         if (firstTime) {
-            Utils.log(null,  `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
+            Utils.log(null, `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
             firstTime = false;
         }
     });
 
     bot.on("guildCreate", guild => {
         try {
-            Utils.log(null,  `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
+            Utils.log(null, `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
         } catch (e) {
             console.warn(e);
         }
@@ -84,19 +84,20 @@ const main = function () {
         }
         var foundChannelInServer = false;
         let serverIds = Utils.getConfig('serverIds');
-        let messageChannelId = message.channel.id;
-        for (serverId of serverIds){
-            if (bot.guilds.get(serverId).channels.get(messageChannelId)){
+        for (serverId of serverIds) {
+            let server = bot.guilds.get(serverId);
+            if (!server) { continue; }
+            if (server.channels.get(message.channel.id)) {
                 foundChannelInServer = true;
                 break;
             }
         }
-        if (!foundChannelInServer){
+        if (!foundChannelInServer) {
             return;
         }
-    
+
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
-            Utils.log(null, message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
+            Utils.log(null, message, message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
                 .slice(Utils.getConfig('prefix').length)
                 .replaceAll("\n", " ")
