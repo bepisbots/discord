@@ -95,12 +95,12 @@ const main = function () {
                 continue; 
             }
             if (server.channels.get(message.channel.id)) {
-                foundChannelInServer = true;
-                console.warn("Serving message from unauthorized channel: " + message.channel.id);
+                foundChannelInServer = true;                
                 break;
             }
         }
         if (!foundChannelInServer) {
+            console.warn("Blocked message from unauthorized channel: " + message.channel.id);
             return;
         }
 
