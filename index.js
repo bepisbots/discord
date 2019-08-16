@@ -82,6 +82,19 @@ const main = function () {
         if (Utils.getConfig("devMode") === true && !Utils.getConfig("owners").includes(message.author.id)) {
             return;
         }
+        var foundChannelInServer = false;
+        let serverIds = Utils.getConfig('serverIds');
+        let messageChannelId = message.channel.id;
+        for (serverId of serverIds){
+            if (bot.guilds.get(serverId).channels.get(messageChannelId)){
+                foundChannelInServer = true;
+                break;
+            }
+        }
+        if (!foundChannelInServer){
+            return;
+        }
+    
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
             Utils.log(null, message,  message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
