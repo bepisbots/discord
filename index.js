@@ -86,9 +86,13 @@ const main = function () {
         let serverIds = Utils.getConfig('serverIds');
         for (serverId of serverIds) {
             let server = bot.guilds.get(serverId);
-            if (!server) { continue; }
+            if (!server) { 
+                console.error("Failure loading server id: " + serverId);
+                continue; 
+            }
             if (server.channels.get(message.channel.id)) {
                 foundChannelInServer = true;
+                console.warn("Serving message from unauthorized channel: " + message.channel.id);
                 break;
             }
         }
