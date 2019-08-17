@@ -19,11 +19,11 @@ module.exports = {
   log: function (db, message, text) {
     if (!message || !message.channel || !text) return;
     try {
-      const channelName = message ? message.channel.name : "";
-      const guildName = message ? message.channel.guild.name : "";
+      const channelName = message && message.channel ? message.channel.name : "";
+      const guildName = message && message.channel && message.channel.guild ? message.channel.guild.name : "";
       const date = dateformat(new Date(), "dd/mm/yy, hh:MM:ss TT");
       const messagetext = (text ? text : (message ? message.content : ""));
-      const authorTag = message ? message.author.tag : "";
+      const authorTag = message && message.author && message.author.tag ? message.author.tag : "";
       const infoText = message ? ": " + authorTag + " on " + channelName + ", " : "";
       console.log(date + ": " + infoText + "[" + messagetext + "]");
 
