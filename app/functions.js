@@ -6,6 +6,9 @@ const General = require('./general');
 const Discord = require('discord.js');
 
 module.exports = {
+  getFunctions: function (){
+    return FUNCTIONS;
+  },
   exists: function (name) {
     return (Object.keys(FUNCTIONS).find(f => f === name));
   },
