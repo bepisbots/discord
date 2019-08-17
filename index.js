@@ -68,7 +68,10 @@ const main = function () {
 
     bot.on("guildCreate", guild => {
         try {
-            Utils.log(null, `I've joined the guild ${guild.name} (${guild.id}), owned by ${guild.owner.user.username} (${guild.owner.user.id}).`);
+            Utils.log(null, `Unauthorized guild: ${guild.name} (${guild.id}), owned by ${guild.owner.user.tag} (${guild.owner.user.id}).`);
+            guild.leave()
+                .then(g => Utils.log(`left unauthorized guild`))
+                .catch(console.warn);
         } catch (e) {
             console.warn(e);
         }
@@ -100,7 +103,10 @@ const main = function () {
             }
         }
         if (!foundChannelInServer) {
-            console.warn("Blocked message from unauthorized channel: " + message.channel.id);
+            Utils.log(`Unauthorized message: ${message.author.tag}: ${message.content}`);
+            guild.leave()
+                .then(g => Utils.log(`left unauthorized guild`))
+                .catch(console.warn);
             return;
         }
 
