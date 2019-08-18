@@ -104,9 +104,6 @@ const main = function () {
         }
         if (!foundChannelInServer) {
             Utils.log(`Unauthorized message: ${message.author.tag}: ${message.content}`);
-            guild.leave()
-                .then(g => Utils.log(`left unauthorized guild`))
-                .catch(console.warn);
             return;
         }
 
