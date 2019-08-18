@@ -10,7 +10,7 @@ module.exports = {
     }
     let username = this.usernamesCache[userId];
     if (username) { return username; }
-    if (!bot) return userId;
+    if (!bot) { return userId; }
     const user = bot.users.find("id", userId);
     if (!user) { return userId; }
     username = user.username;

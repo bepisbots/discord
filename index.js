@@ -87,18 +87,18 @@ const main = function () {
         }
         var foundChannelInServer = false;
         let serverIds = Utils.getConfig('serverIds');
-        if (!Array.isArray(serverIds)){
+        if (!Array.isArray(serverIds)) {
             serverIds = JSON.parse(serverIds);
         }
         for (serverId of serverIds) {
             let server = bot.guilds.get(serverId);
-            if (!server) { 
+            if (!server) {
                 console.error("Failure loading server id: " + serverId);
                 console.log(serverIds);
-                continue; 
+                continue;
             }
             if (server.channels.get(message.channel.id)) {
-                foundChannelInServer = true;                
+                foundChannelInServer = true;
                 break;
             }
         }
@@ -118,7 +118,7 @@ const main = function () {
             let cmd = args[0].toLowerCase(); // set the first word as the command in lowercase just in case
             args.shift(); // delete the first word from the args        
 
-            getDb((db, bot) => {
+            getDb((db) => {
                 // find key, in case is one of the recorded ones                
                 trick(cmd, message, db, bot, args);
                 // Run scan channels automatically every hour
@@ -127,7 +127,7 @@ const main = function () {
                     lastTimeChannelsScanned = Date.now();
                     Admin.scanChannels(null, db, bot, null, null, null, Functions.getFunctions());
                 }
-            });
+            }, bot);
         }
     });
 }
