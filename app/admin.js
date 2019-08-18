@@ -91,21 +91,20 @@ async function processChannel(db, bot, message, channelId) {
         .forEach(async (m) => {
           await col.findOne({ channel: channelId, createdTimestamp: m.createdTimestamp }, { limit: 1 }, function (err, doc) {
             if (err) return;
-            const message = {
-              channel: channelId,
-              author: m.author.username,
-              authorId: m.author.id,
-              createdTimestamp: m.createdTimestamp,
-              content: m.content.trim()
-            };
-            let title = Utils.removeUrls(m.content).trim();
-            if (title) message.title = title;
-
             if (!doc) {
-              col.insertOne(message);
+              const msg = {
+                channel: channelId,
+                author: m.author.username,
+                authorId: m.author.id,
+                createdTimestamp: m.createdTimestamp,
+                content: m.content.trim()
+              };
+              let title = Utils.removeUrls(m.content).trim();
+              if (title) msg.title = title;
+              col.insertOne(msg);
               counter++;
             } else if (doc.content.trim() != m.content.trim()) {
-              Utils.sendMessage(db, m, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
+              Utils.sendMessage(db, message, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
               doc.content = m.content.trim();
               col.save(doc);
             }
