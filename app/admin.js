@@ -105,7 +105,7 @@ async function processChannel(db, bot, message, channelId) {
               col.insertOne(message);
               counter++;
             } else if (doc.content.trim() != m.content.trim()) {
-              Utils.sendMessage(db, message, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
+              Utils.sendMessage(db, m, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
               doc.content = m.content.trim();
               col.save(doc);
             }
