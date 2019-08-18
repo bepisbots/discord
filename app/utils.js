@@ -33,7 +33,7 @@ module.exports = {
       if (botLogChannelId && bot) {
         const botLogChannel = bot.channels.get(botLogChannelId);
         if (botLogChannel) {
-          botLogChannel.send(messagetext);
+          botLogChannel.send(channelName + ": " + messagetext);
         }
       }
 
