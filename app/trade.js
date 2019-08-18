@@ -9,7 +9,7 @@ module.exports = {
     let guess = params['guess'];
 
     if (user.coins < coins) {
-      Utils.sendMessage(db, message, Utils.getString("notEnoughCoins")
+      Utils.sendMessage(db, bot, message, Utils.getString("notEnoughCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -35,7 +35,7 @@ module.exports = {
       .setColor(Utils.hexColors.brownOrange)
       .setDescription(text)
       .setImage(image);
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
   giveCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
@@ -51,7 +51,7 @@ module.exports = {
     }
 
     if (sourceUser.coins < coins) {
-      Utils.sendMessage(db, message, Utils.getString("notEnoughCoins")
+      Utils.sendMessage(db, bot, message, Utils.getString("notEnoughCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -70,7 +70,7 @@ module.exports = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.greyDiscord)
       .setDescription(text);
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
   createCoins: async function (message, db, bot, trickArgs, userArgs, params) {
     let user = params['userTag'];
@@ -91,7 +91,7 @@ module.exports = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.greyDiscord)
       .setDescription(text);
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
   assign: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userTag'];
@@ -103,7 +103,7 @@ module.exports = {
     posts.findOne({ title: itemTitle }, { limit: 1 }, function (err, catched) {
       if (err) return;
       if (!catched) {
-        Utils.sendMessage(db, message, "Title not found in channel. Make sure title is exact");
+        Utils.sendMessage(db, bot, message, "Title not found in channel. Make sure title is exact");
         return;
       }
       const col = db.collection("users");
@@ -126,7 +126,7 @@ module.exports = {
         .setColor(Utils.hexColors.greyDiscord)
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
     });
   },
   tradeShop: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -153,7 +153,7 @@ module.exports = {
         id++;
       });
       const title = Utils.getString("shopTitle") + (totalPages > 1 ? " Page " + (pageNumber + 1) + " of " + totalPages : "");
-      Utils.sendMessage(db, message, {
+      Utils.sendMessage(db, bot, message, {
         embed: {
           color: Utils.hexColors.yellow,
           title: title,
@@ -165,7 +165,7 @@ module.exports = {
   tradeUnSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 2) {
-      Utils.sendMessage(db, message, Utils.getString("unSellError")
+      Utils.sendMessage(db, bot, message, Utils.getString("unSellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -187,21 +187,21 @@ module.exports = {
 
     const shopCol = db.collection("shop");
     await shopCol.deleteOne({ userId: message.author.id, itemId: key });
-    Utils.sendMessage(db, message, Utils.getString("unSellSuccess")
+    Utils.sendMessage(db, bot, message, Utils.getString("unSellSuccess")
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">"));
   },
   tradeSell: async function (message, db, bot, trickArgs, userArgs, params) {
     const cmdArgs = message.content.trim().split(" ");;
     if (!cmdArgs || cmdArgs.length < 3) {
-      Utils.sendMessage(db, message, Utils.getString("sellError")
+      Utils.sendMessage(db, bot, message, Utils.getString("sellError")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
     const itemNumber = cmdArgs[1] - 1;
     const coins = parseInt(cmdArgs[2]);
     if (!coins || coins <= 0 || coins > 1000) {
-      Utils.sendMessage(db, message, Utils.getString("sellErrorCoins")
+      Utils.sendMessage(db, bot, message, Utils.getString("sellErrorCoins")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -232,7 +232,7 @@ module.exports = {
       item: item.content,
       coins: parseInt(coins)
     });
-    Utils.sendMessage(db, message, Utils.getString("sellSuccess")
+    Utils.sendMessage(db, bot, message, Utils.getString("sellSuccess")
       .replace("{itemName}", Utils.getItenName(item))
       .replace("{userTag}", "<@" + message.author.id + ">")
     );
@@ -243,7 +243,7 @@ module.exports = {
         .setColor(Utils.hexColors.red)
         .setDescription(Utils.getString("buyError")
           .replace("{userTag}", "<@" + message.author.id + ">"));
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
       return;
     }
     // find item in inventory
@@ -258,7 +258,7 @@ module.exports = {
         .setColor(Utils.hexColors.red)
         .setDescription(Utils.getString("buyNotEnoughCoins")
           .replace("{userTag}", "<@" + message.author.id + ">"));
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
       return;
     }
     const itemId = shopItem.itemId;
@@ -299,7 +299,7 @@ module.exports = {
       .replace("{paidCoins}", shopItem.coins)
       .replace("{itemName}", Utils.removeUrls((shopItem.item)));
     buyMessage = Utils.replaceTemplates(buyMessage, message, null);
-    Utils.sendMessage(db, message, buyMessage);
+    Utils.sendMessage(db, bot, message, buyMessage);
   },
   tradeGive: async function (message, db, bot, trickArgs, userArgs, params) {
     let userRecord = params['userRecord'];
@@ -310,7 +310,7 @@ module.exports = {
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
-      Utils.sendMessage(db, message, Utils.getString("giveAwayErrorShop")
+      Utils.sendMessage(db, bot, message, Utils.getString("giveAwayErrorShop")
         .replace("{userTag}", "<@" + message.author.id + ">"));
       return;
     }
@@ -361,14 +361,14 @@ module.exports = {
         .replace("{itemName}", Utils.getItenName(item))
         .replace("{userTag}", "<@" + message.author.id + ">")
         .replace("{userTagReceiver}", "<@" + (targetUser ? targetUser.userId : "") + ">");
-      Utils.sendMessage(db, message, textMessage);
+      Utils.sendMessage(db, bot, message, textMessage);
     };
 
     if (!foundSymbol) {
       trade();
     } else {
       const textMessage = "Are you sure you want to trade item for " + greatestCoinsValue + " bepis?\nYou have 30 seconds to react to this message using 🆗 to confirm"
-      const msg = await Utils.sendMessage(db, message, textMessage);
+      const msg = await Utils.sendMessage(db, bot, message, textMessage);
       const reactionFilter = (reaction, user) =>
         reaction.emoji.name === '🆗'
         && user.id === userRecord.userId;
@@ -378,7 +378,9 @@ module.exports = {
         .then(collected =>
           trade()
         )
-        .catch(console.error);
+        .catch(e => {
+          console.error(e);
+        });
     }
   },
   trade: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -391,7 +393,7 @@ module.exports = {
 
     // Make sure the item is not in the shop
     if (item.selling > 0) {
-      Utils.sendMessage(db, message, Utils.getString("tradeErrorShop")
+      Utils.sendMessage(db, bot, message, Utils.getString("tradeErrorShop")
         .replace("{userTag}", "<@" + userRecord.userId + ">"));
       return;
     }
@@ -403,13 +405,13 @@ module.exports = {
       const tradeItem = that.pendingTrades[tradeIdx];
       delete that.pendingTrades[tradeIdx];
 
-      if (tradeItem.timestamp + (1000*60*60) < Date.now()){
-        Utils.sendMessage(db, message, "Trade offer expired");
+      if (tradeItem.timestamp + (1000 * 60 * 60) < Date.now()) {
+        Utils.sendMessage(db, bot, message, "Trade offer expired");
         return;
       }
 
-      if (!targetUser.inventory[tradeItem.key] || !userRecord.inventory[itemKey] ){
-        Utils.sendMessage(db, message, Utils.getString("tradeError"));
+      if (!targetUser.inventory[tradeItem.key] || !userRecord.inventory[itemKey]) {
+        Utils.sendMessage(db, bot, message, Utils.getString("tradeError"));
         return;
       }
 
@@ -422,7 +424,7 @@ module.exports = {
         .replace("{itemName2}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + targetUser.userId + ">")
         .replace("{userTagReceiver}", "<@" + userRecord.userId + ">");
-      Utils.sendMessage(db, message, textMessage);
+      Utils.sendMessage(db, bot, message, textMessage);
       return;
     }
 
@@ -435,13 +437,13 @@ module.exports = {
       if (!that.pendingTrades) that.pendingTrades = {};
       const tradeIdx = userRecord.userId + "-" + targetUser.userId;
       that.pendingTrades[tradeIdx] = { key: itemKey, item: item, timestamp: Date.now() };
-      Utils.sendMessage(db, message, Utils.getString("tradeMessageAccepted")
+      Utils.sendMessage(db, bot, message, Utils.getString("tradeMessageAccepted")
         .replace("{itemName}", Utils.removeUrls(item.content))
         .replace("{userTag}", "<@" + userRecord.userId + ">")
         .replace("{userTagReceiver}", "<@" + targetUser.userId + ">"));
     }
 
-    const msg = await Utils.sendMessage(db, message, textMessage);
+    const msg = await Utils.sendMessage(db, bot, message, textMessage);
 
     const reactionFilter = function (reaction, user) {
       return user.id === targetUser.userId &&
@@ -466,7 +468,7 @@ module.exports = {
     let text = Utils.getString("invShowTotalCoins")
       .replace("{coins}", userRecord.coins || 0)
       .replace("{userTag}", "<@" + userId + ">");
-    Utils.sendMessage(db, message, text);
+    Utils.sendMessage(db, bot, message, text);
   }
 };
 

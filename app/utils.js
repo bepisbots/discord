@@ -10,22 +10,32 @@ module.exports = {
     }
     let username = this.usernamesCache[userId];
     if (username) { return username; }
+    if (!bot) return userId;
     const user = bot.users.find("id", userId);
-    if (!user) { return "noone"; }
+    if (!user) { return userId; }
     username = user.username;
     this.usernamesCache[userId] = username;
     return username;
   },
-  log: function (db, message, text) {
+  log: function (db, bot, message, text, level) {
     if (!message || !message.channel || !text) return;
     try {
       const channelName = message && message.channel ? message.channel.name : "";
       const guildName = message && message.channel && message.channel.guild ? message.channel.guild.name : "";
       const date = dateformat(new Date(), "dd/mm/yy, hh:MM:ss TT");
-      const messagetext = (text ? text : (message ? message.content : ""));
+      const messagetext = (level ? level + ": " : "") + (text ? text : (message ? message.content : ""));
       const authorTag = message && message.author && message.author.tag ? message.author.tag : "";
-      const infoText = message ? ": " + authorTag + " on " + channelName + ", " : "";
-      console.log(date + ": " + infoText + "[" + messagetext + "]");
+      const infoText = message ? ": " + authorTag + " in " + channelName + ", " : "";
+
+      console.log(date + ": " + infoText + "\n" + messagetext);
+
+      const botLogChannelId = this.getConfig("botLogChannel");
+      if (botLogChannelId && bot) {
+        const botLogChannel = bot.channels.get(botLogChannelId);
+        if (botLogChannel) {
+          botLogChannel.send(messagetext);
+        }
+      }
 
       if (db) {
         let logEntry = {
@@ -45,9 +55,9 @@ module.exports = {
       console.error(e);
     }
   },
-  sendMessage: function (db, message, text) {
+  sendMessage: function (db, bot, message, text) {
     if (!message || !message.channel || !text) return;
-    this.log(db, message, text);
+    this.log(db, bot, message, text);
     return message.channel.send(text);
   },
   getConfigs: function () {
@@ -149,7 +159,7 @@ module.exports = {
         }
       });
       if (isInARole) return true;
-      this.sendMessage(db, message, "You can't perform this action as you're not member of any of the following roles:\n"
+      this.sendMessage(db, bot, message, "You can't perform this action as you're not member of any of the following roles:\n"
         + rolesArray.join(", "));
     }
     return false;

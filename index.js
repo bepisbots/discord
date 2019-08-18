@@ -21,7 +21,7 @@ String.prototype.replaceAll = function (search, replacement) {
 
 // Initialize connection once
 let _db;
-const getDb = function (callback) {
+const getDb = function (callback, bot) {
     if (_db != null) {
         callback(_db);
     } else {
@@ -30,11 +30,11 @@ const getDb = function (callback) {
                 if (err) throw err;
                 _db = database.db("bepisdb");
                 setTimeout(() => {
-                    Utils.log(null, "DB connection closed");
+                    Utils.log(null, bot, "DB connection closed");
                     database.close();
                     _db = null;
                 }, 1000 * 60 * 20);
-                Utils.log(null, "DB connection opened");
+                Utils.log(null, bot, "DB connection opened");
                 callback(_db);
             });
     }
@@ -44,7 +44,7 @@ let firstTime = true;
 let bot;
 const main = function () {
     if (firstTime)
-        Utils.log(null, "Bot Initiated");
+        Utils.log(null, bot, "Bot Initiated");
     if (bot) {
         bot.destroy();
     }
@@ -61,16 +61,16 @@ const main = function () {
     bot.on("ready", () => {
         bot.user.setActivity('with shibes!'); //you can set a default game
         if (firstTime) {
-            Utils.log(null, `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
+            Utils.log(null, bot, `Bot is online!\n${bot.users.size} users, in ${bot.guilds.size} servers connected.`);
             firstTime = false;
         }
     });
 
     bot.on("guildCreate", guild => {
         try {
-            Utils.log(null, `Unauthorized guild: ${guild.name} (${guild.id}), owned by ${guild.owner.user.tag} (${guild.owner.user.id}).`);
+            Utils.log(null, bot, `Unauthorized guild: ${guild.name} (${guild.id}), owned by ${guild.owner.user.tag} (${guild.owner.user.id}).`);
             guild.leave()
-                .then(g => Utils.log(`left unauthorized guild`))
+                .then(g => Utils.log(null, bot, `left unauthorized guild`))
                 .catch(console.warn);
         } catch (e) {
             console.warn(e);
@@ -103,12 +103,12 @@ const main = function () {
             }
         }
         if (!foundChannelInServer) {
-            Utils.log(`Unauthorized message: ${message.author.tag}: ${message.content}`);
+            Utils.log(null, bot, `Unauthorized message: ${message.author.tag}: ${message.content}`);
             return;
         }
 
         if (message.content.indexOf(Utils.getConfig('prefix')) === 0) { // Message starts with your prefix
-            Utils.log(null, message, message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
+            Utils.log(null, bot, message, message.author.tag + ", [" + message.content + "]"); // Log chat to console for debugging/testing
             let msg = message.content
                 .slice(Utils.getConfig('prefix').length)
                 .replaceAll("\n", " ")
@@ -118,7 +118,7 @@ const main = function () {
             let cmd = args[0].toLowerCase(); // set the first word as the command in lowercase just in case
             args.shift(); // delete the first word from the args        
 
-            getDb((db) => {
+            getDb((db, bot) => {
                 // find key, in case is one of the recorded ones                
                 trick(cmd, message, db, bot, args);
                 // Run scan channels automatically every hour
@@ -149,7 +149,7 @@ const trick = async function (cmd, message, db, bot, userArgs) {
         if (Functions.exists(trickArgs[0])) {
             Functions.run(cmd, trickArgs[0], message, db, bot, trickArgs, userArgs)
         } else
-            Utils.sendMessage(db, message, entities.decode(trick.say));
+            Utils.sendMessage(db, bot, message, entities.decode(trick.say));
     } catch (e) {
         console.warn(e);
     }

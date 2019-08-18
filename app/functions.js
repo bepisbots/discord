@@ -33,7 +33,7 @@ module.exports = {
       console.warn(e);
       const embed = new Discord.RichEmbed().setColor(Utils.hexColors.red)
         .setTitle("Error").setDescription(e.message);
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
       return;
     });
   }

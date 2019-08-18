@@ -5,7 +5,7 @@ module.exports = {
   randomPost: async function (message, db, bot, trickArgs) {
     const channelId = trickArgs[1];
     Utils.getRandomMessage(db, channelId, (chosenMessage) => {
-      Utils.sendMessage(db, message, chosenMessage.content);
+      Utils.sendMessage(db, bot, message, chosenMessage.content);
     });
   },
   generateInvite: async function (message, db, bot, trickArgs, userArgs, params, fns, cats) {
@@ -13,7 +13,7 @@ module.exports = {
     const channelId = trickArgs[1];
 
     if (userRecord.inviteLink) {
-      Utils.sendMessage(db, message, Utils.getString("generateInvite")
+      Utils.sendMessage(db, bot, message, Utils.getString("generateInvite")
         .replace("{userTag}", "<@" + userRecord.userId + ">")
         .replace("{inviteLink}", userRecord.inviteLink.url));
       return;
@@ -21,7 +21,7 @@ module.exports = {
 
     const channel = bot.channels.get(channelId);
     if (!channel.permissionsFor(message.member).has(Discord.Permissions.FLAGS.CREATE_INSTANT_INVITE)) {
-      Utils.sendMessage(db, message, "Bot missing permission: CREATE_INSTANT_INVITE on channel '" + channel.name
+      Utils.sendMessage(db, bot, message, "Bot missing permission: CREATE_INSTANT_INVITE on channel '" + channel.name
         + "'\nPlease ask admin to add permission to bot.");
       return;
     }
@@ -29,7 +29,7 @@ module.exports = {
     channel.createInvite({ maxAge: 0, unique: true }).then(link => {
       userRecord.inviteLink = { url: link.url, code: link.code };
       db.collection("users").save(userRecord);
-      Utils.sendMessage(db, message, Utils.getString("generateInvite")
+      Utils.sendMessage(db, bot, message, Utils.getString("generateInvite")
         .replace("{userTag}", "<@" + userRecord.userId + ">")
         .replace("{inviteLink}", userRecord.inviteLink.url));
     });
@@ -82,7 +82,7 @@ module.exports = {
             //reachedTargetPage = true;
             //return false; // Returns false when it reached the target page
           //}
-          Utils.sendMessage(db, message, "```asciidoc\n" + helptext + "```");
+          Utils.sendMessage(db, bot, message, "```asciidoc\n" + helptext + "```");
           currCharCount = 0;
           //currentPage++;
           helptext = "";
@@ -169,7 +169,7 @@ module.exports = {
         }
       }
       endHelpSection();
-      Utils.sendMessage(db, message, "```asciidoc\n" + helptext + "```");
+      Utils.sendMessage(db, bot, message, "```asciidoc\n" + helptext + "```");
     });
   },
   resolveParams: function (message, db, bot, command, functionParameters, passedArguments, PARAMETERS) {

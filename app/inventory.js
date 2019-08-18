@@ -19,12 +19,12 @@ const mod = {
     const item2Name = Utils.getItenName(item2);
 
     if (item1.quantity === item1.selling) {
-      Utils.sendMessage(db, message, "Failed\nReason: (" + (itemNumber1 + 1) + ") **"
+      Utils.sendMessage(db, bot, message, "Failed\nReason: (" + (itemNumber1 + 1) + ") **"
         + item1Name + "** is currently for sale");
       return;
     }
     if (item2.quantity === item2.selling) {
-      Utils.sendMessage(db, message, "Failed\nReason: (" + (itemNumber2 + 1) + ") **"
+      Utils.sendMessage(db, bot, message, "Failed\nReason: (" + (itemNumber2 + 1) + ") **"
         + item2Name + "** is currently for sale");
       return;
     }
@@ -37,13 +37,13 @@ const mod = {
       }
     }, { limit: 1 }).then(async fuseRecord => {
       if (!fuseRecord) {
-        Utils.sendMessage(db, message, "No fuse formula found for **"
+        Utils.sendMessage(db, bot, message, "No fuse formula found for **"
           + item1Name + "** and **" + item2Name + "**. Keep trying!");
         return;
       }
       let fuseParts = fuseRecord.title.split(';');
       if (fuseParts.length < 3) {
-        Utils.sendMessage(db, message, "Error found in fuse formula for **"
+        Utils.sendMessage(db, bot, message, "Error found in fuse formula for **"
           + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
         return;
       }
@@ -53,7 +53,7 @@ const mod = {
       }
       let fusedItem = await posts.findOne({ title: fuseParts[2] }, { limit: 1 });
       if (!fusedItem) {
-        Utils.sendMessage(db, message, "Fused item not found: Error found in fuse formula for **"
+        Utils.sendMessage(db, bot, message, "Fused item not found: Error found in fuse formula for **"
           + item1Name + "** and **" + item2Name + "**. Ask the admin to fix it!");
         return;
       }
@@ -76,7 +76,7 @@ const mod = {
         };
       }
       db.collection("users").save(userRecord);
-      Utils.sendMessage(db, message, "Congratulations! You earned **" + fusedItem.title
+      Utils.sendMessage(db, bot, message, "Congratulations! You earned **" + fusedItem.title
         + "** by combining **" + item1Name + "** and **" + item2Name + "**");
     });
   },
@@ -95,12 +95,12 @@ const mod = {
       const userCol = db.collection("users");
       userCol.save(userRecord);
 
-      Utils.sendMessage(db, message, Utils.getItenName(item) + " has been removed from your inventory!");
+      Utils.sendMessage(db, bot, message, Utils.getItenName(item) + " has been removed from your inventory!");
     };
 
     const validateDeletion = async function () {
       const textMessage = "Are you sure you want to delete item?\nYou have 30 seconds to react to this message using 🆗 to confirm"
-      const msg = await Utils.sendMessage(db, message, textMessage);
+      const msg = await Utils.sendMessage(db, bot, message, textMessage);
       const reactionFilter = function (reaction, user) {
         return user.id === userRecord.id &&
           reaction.emoji.name === '🆗';
@@ -152,7 +152,7 @@ const mod = {
     if (!params['noPages'] && totalPages > 1)
       title += " Page " + (pageNumber + 1) + " of " + totalPages;
 
-    Utils.sendMessage(db, message, {
+    Utils.sendMessage(db, bot, message, {
       embed: {
         color: sideBarColor,
         title: title,
@@ -183,30 +183,30 @@ const mod = {
       .setColor(Utils.hexColors.red)
       .setTitle(Utils.getItenName(item))
       .setImage(Utils.getUrl(item.content));
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
   invColor: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
     const userTag = userArgs[0];
     if (!userTag) {
-      Utils.sendMessage(db, message, Utils.getString("invColorError"));
+      Utils.sendMessage(db, bot, message, Utils.getString("invColorError"));
       return;
     }
     var numberPattern = /\d+/g;
     const userNumber = userTag.match(numberPattern);
     const targetUser = bot.users.find("id", userNumber[0]);
     if (!targetUser) {
-      Utils.sendMessage(db, message, Utils.getString("invColorError"));
+      Utils.sendMessage(db, bot, message, Utils.getString("invColorError"));
       return;
     }
     const colorHex = userArgs[1];
     if (!colorHex) {
-      Utils.sendMessage(db, message, Utils.getString("invColorError"));
+      Utils.sendMessage(db, bot, message, Utils.getString("invColorError"));
       return;
     }
     var isOk = /^#[0-9A-F]{6}$/i.test(colorHex);
     if (!isOk) {
-      Utils.sendMessage(db, message, Utils.getString("invColorHexError"));
+      Utils.sendMessage(db, bot, message, Utils.getString("invColorHexError"));
       return;
     }
     const colorNumber = parseInt(colorHex.substr(1), 16);
@@ -214,7 +214,7 @@ const mod = {
     const col = db.collection("users");
     const userRecord = await col.findOne({ userId: userNumber[0] });
     if (!userRecord) {
-      Utils.sendMessage(db, message, Utils.getString("invColorError"));
+      Utils.sendMessage(db, bot, message, Utils.getString("invColorError"));
       return;
     }
     if (!userRecord.preferences) {
@@ -223,7 +223,7 @@ const mod = {
     userRecord.preferences.sideBarColor = colorNumber;
     await col.save(userRecord);
 
-    Utils.sendMessage(db, message, {
+    Utils.sendMessage(db, bot, message, {
       embed: {
         color: colorNumber,
         title: "Successfully changed color for @" + targetUser.tag,
@@ -265,7 +265,7 @@ const mod = {
             .replace("{hours}", hours)
             .replace("{minutes}", minutes)
             .replace("{seconds}", seconds);
-          Utils.sendMessage(db, message, text);
+          Utils.sendMessage(db, bot, message, text);
           return;
         }
       }
@@ -295,7 +295,7 @@ const mod = {
         .setColor(Utils.hexColors.greyDiscord)
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
     });
   },
   invEvent: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -322,7 +322,7 @@ const mod = {
         let text = Utils.getString("eventFailCatchMessage")
           .replace("{userTag}", "<@" + message.author.id + ">")
           .replace("{itemName}", Utils.getItenName(catched))
-        Utils.sendMessage(db, message, text);
+        Utils.sendMessage(db, bot, message, text);
         return;
       }
       userRecord.events.push(channelId);
@@ -338,7 +338,7 @@ const mod = {
         .setColor(Utils.hexColors.greyDiscord)
         .setDescription(text)
         .setImage(Utils.getUrl(catched.content));
-      Utils.sendMessage(db, message, { embed });
+      Utils.sendMessage(db, bot, message, { embed });
     });
   },
   invNick: async function (message, db, bot, trickArgs, userArgs, params) {
@@ -359,7 +359,7 @@ const mod = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.blueSky)
       .setDescription(text);
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
   invClearNick: async function (message, db, bot, trickArgs, userArgs, params) {
     // Get user entry
@@ -377,7 +377,7 @@ const mod = {
     const embed = new Discord.RichEmbed()
       .setColor(Utils.hexColors.blueSky)
       .setDescription(text);
-    Utils.sendMessage(db, message, { embed });
+    Utils.sendMessage(db, bot, message, { embed });
   },
 };
 module.exports = mod;

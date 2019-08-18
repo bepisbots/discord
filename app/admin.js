@@ -5,7 +5,7 @@ const entities = new Entities();
 module.exports = {
   newTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 2) {
-      Utils.sendMessage(db, message, 'Arf-arf!\nPlease teach me as follows: !newTrick [command] [whatToSay]');
+      Utils.sendMessage(db, bot, message, 'Arf-arf!\nPlease teach me as follows: !newTrick [command] [whatToSay]');
       return;
     }
     const trickName = userArgs[0].toLowerCase();
@@ -27,17 +27,17 @@ module.exports = {
         col.save(doc);
       }
     });
-    Utils.sendMessage(db, message, "Successfully teached new trick!\nWhen you say: !" + trickName + ", I Say:");
-    Utils.sendMessage(db, message, entities.decode(whatToSay));
+    Utils.sendMessage(db, bot, message, "Successfully teached new trick!\nWhen you say: !" + trickName + ", I Say:");
+    Utils.sendMessage(db, bot, message, entities.decode(whatToSay));
   },
   forgetTrick: async function (message, db, bot, trickArgs, userArgs) {
     if (userArgs.length < 1) {
-      Utils.sendMessage(db, message, 'Arf-arf!\nPlease un-teach me as follows: !forgetTrick [command]');
+      Utils.sendMessage(db, bot, message, 'Arf-arf!\nPlease un-teach me as follows: !forgetTrick [command]');
       return;
     }
     const col = db.collection("tricks");
     await col.deleteOne({ name: userArgs[0] });
-    Utils.sendMessage(db, message, "Trick forgotten");
+    Utils.sendMessage(db, bot, message, "Trick forgotten");
   },
   scanChannels: async function (message, db, bot, trickArgs, userArgs, params, FUNCTIONS) {
     // Find all channels that are listed in tricks
@@ -72,14 +72,14 @@ module.exports = {
 
 async function processChannel(db, bot, message, channelId) {
   const textProcessing = "Processing Channel: " + channelId;
-  Utils.sendMessage(db, message, textProcessing);
+  Utils.sendMessage(db, bot, message, textProcessing);
 
   const channel = bot.channels.get(channelId);
   const col = db.collection("posts");
   let counter = 0;
   if (!channel) {
     const text = "Failed accessing channel " + channelId + ". Make sure the bot has read rights on the channel and try again:";
-    Utils.sendMessage(db, message, text);
+    Utils.sendMessage(db, bot, message, text);
     return;
   }
   let lastMessageId;
@@ -104,7 +104,7 @@ async function processChannel(db, bot, message, channelId) {
               col.insertOne(msg);
               counter++;
             } else if (doc.content.trim() != m.content.trim()) {
-              Utils.sendMessage(db, message, "Updated:\n[" + doc.content.trim() + "] to \n[" + m.content.trim() + "]\n")
+              Utils.sendMessage(db, bot, message, "Updated:[" + doc.content.trim() + "]\n to:[" + m.content.trim() + "]\n")
               doc.content = m.content.trim();
               col.save(doc);
             }
@@ -118,5 +118,5 @@ async function processChannel(db, bot, message, channelId) {
     lastMessageIdProcessed = lastMessageId;
   } while (true);
   const textProcessed = "Processed " + counter + " new messages for channel" + channelId;
-  Utils.sendMessage(db, message, textProcessed);
+  Utils.sendMessage(db, bot, message, textProcessed);
 }
