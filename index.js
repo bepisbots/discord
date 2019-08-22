@@ -123,7 +123,7 @@ const main = function () {
                 trick(cmd, message, db, bot, args);
                 // Run scan channels automatically every hour
                 var hours = (Date.now() - lastTimeChannelsScanned) / 36e5;
-                if (hours > 1) {
+                if (hours > 12) {
                     lastTimeChannelsScanned = Date.now();
                     Admin.scanChannels(null, db, bot, null, null, null, Functions.getFunctions());
                 }
