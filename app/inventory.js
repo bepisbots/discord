@@ -236,6 +236,10 @@ const mod = {
     // Get user entry
     const channelId = trickArgs[1];
     if (!channelId) return;
+    if(channelId != "447172845357891596"){
+      let text = ":no_entry_sign: You cannot catch here, please only catch in <#447172845357891596>";
+      Utils.sendMessage(db,bot,message,text);
+    }
     const hoursToWait = parseFloat(trickArgs[2]);
     const col = db.collection("users");
     let userRecord = params['userRecord'];
